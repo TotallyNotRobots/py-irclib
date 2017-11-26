@@ -6,6 +6,9 @@ python:
   - "3.6"
   - "3.7-dev"
 
+install:
+  - "pip install -Ur requirements.txt"
+
 script:
   - "py.test . -v --cov . --cov-report term-missing"
 
