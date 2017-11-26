@@ -263,6 +263,10 @@ class ParamList(Parseable, tuple):
 
         return tuple.__new__(cls, seq)
 
+    @property
+    def has_trail(self):
+        return self and self[-1][:1] == TRAIL_SENTINEL
+
     def __str__(self):
         return PARAM_SEP.join(self)
 
