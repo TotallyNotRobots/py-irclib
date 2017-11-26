@@ -5,7 +5,7 @@ Backported from async-irc (https://github.com/snoonetIRC/async-irc.git)
 """
 
 import re
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 
 from irclib.errors import ParseError
@@ -41,7 +41,7 @@ TAG_VALUE_UNESCAPES = {
 }
 
 
-class Parseable(ABC):
+class Parseable(metaclass=ABCMeta):
     """Abstract class for parseable objects"""
 
     @abstractmethod
