@@ -9,6 +9,8 @@ def test_line():
 
     msg2 = Message.parse("@test=data;test1=more\sdata :nick!user@host COMMAND arg1 arg2 :trailing text")
 
+    assert msg2.prefix.host == "host"
+
 
 def test_cap():
     caps = CapList.parse("test test-1=blah")

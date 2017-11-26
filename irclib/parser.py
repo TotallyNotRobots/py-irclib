@@ -25,7 +25,7 @@ TRAIL_SENTINEL = ':'
 CAP_SEP = ' '
 CAP_VALUE_SEP = '='
 
-PREFIX_RE = re.compile(r':?(?P<nick>.+?)(?:!(?P<user>.+?))?(?:@(?P<host>.+?))?')
+PREFIX_RE = re.compile(r':?(?P<nick>.+?)(?:!(?P<user>.+?))?(?:@(?P<host>.+))?')
 
 TAG_VALUE_ESCAPES = {
     '\\s': ' ',
@@ -242,7 +242,7 @@ class Prefix(Parseable, _Prefix):
         if not text:
             return Prefix('', None, None)
 
-        match = PREFIX_RE.fullmatch(text)
+        match = PREFIX_RE.match(text)
         if not match:
             raise ParseError("Invalid IRC prefix format")
 
