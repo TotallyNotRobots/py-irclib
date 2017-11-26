@@ -18,6 +18,6 @@ setup(
     keywords='irc irc-parser',
     packages=['irclib'],
     install_requires=[],
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    setup_requires=['pytest-runner', 'pytest-cov', 'pytest-pep8'],
+    tests_require=['pytest', 'pytest-cov', 'pytest-pep8'],
 )
