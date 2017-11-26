@@ -16,7 +16,7 @@ setup(
         'Programming Language :: Python :: 3.3',
     ],
     keywords='irc irc-parser',
-    packages=['irclib'],
+    packages=['irclib', 'irclib.util'],
     install_requires=[],
     setup_requires=['pytest-runner', 'pytest-cov', 'pytest-pep8'],
     tests_require=['pytest', 'pytest-cov', 'pytest-pep8'],
