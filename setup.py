@@ -6,7 +6,7 @@ setup(
     version='0.1.0',
     python_requires=">=3.3",
     description="A simple library for working with the IRC protocol",
-    url='https://github.com/snoonetIRC/irclib',
+    url='https://github.com/TotallyNotRobots/irclib',
     author='linuxdaemon',
     author_email='linuxdaemon@snoonet.org',
     license='MIT',
