@@ -224,4 +224,4 @@ class String(str):
 
     @cached_property
     def casemap(self):
-        ...
+        raise RuntimeError("String.casefold property not properly cached")
