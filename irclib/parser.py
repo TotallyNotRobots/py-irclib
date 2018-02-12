@@ -98,6 +98,9 @@ class CapList(Parseable, tuple):
         """Parse a list of CAPs from a string
         :type text: str
         """
+        if text.startswith(':'):
+            text = text[1:]  # Remove leading colon
+
         return CapList(map(Cap.parse, text.split(CAP_SEP)))
 
 
