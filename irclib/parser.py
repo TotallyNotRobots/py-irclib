@@ -285,7 +285,7 @@ class ParamList(Parseable, tuple):
         has_trail = False
         while text:
             if text[0] == TRAIL_SENTINEL:
-                args.append(text[1:])
+                args.append(text[1:].rstrip())
                 has_trail = True
                 break
 
