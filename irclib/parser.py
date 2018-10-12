@@ -101,7 +101,11 @@ class CapList(Parseable, tuple):
         if text.startswith(':'):
             text = text[1:]  # Remove leading colon
 
-        return CapList(map(Cap.parse, text.split(CAP_SEP)))
+        # We want to strip any leading or trailing whitespace
+        # Some networks (ie: freenode) send a trailing space in a CAP ACK
+        stripped = text.strip()
+
+        return CapList(map(Cap.parse, stripped.split(CAP_SEP)))
 
 
 _MessageTag = namedtuple('_MessageTag', 'name value')
