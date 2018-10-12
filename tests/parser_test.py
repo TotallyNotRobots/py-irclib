@@ -24,6 +24,18 @@ class TestCaps:
                 "blah blah-blah cap-1 test-cap=value-data",
                 (("blah", None), ("blah-blah", None), ("cap-1", None), ("test-cap", "value-data"))
             ),
+            (
+                "blah blah-blah cap-1 test-cap=value-data ",
+                (("blah", None), ("blah-blah", None), ("cap-1", None), ("test-cap", "value-data"))
+            ),
+            (
+                ":blah blah-blah cap-1 test-cap=value-data",
+                (("blah", None), ("blah-blah", None), ("cap-1", None), ("test-cap", "value-data"))
+            ),
+            (
+                ":blah blah-blah cap-1 test-cap=value-data ",
+                (("blah", None), ("blah-blah", None), ("cap-1", None), ("test-cap", "value-data"))
+            ),
         )
 
         for text, expected in cases:
