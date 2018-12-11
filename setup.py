@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
     name='py-irclib',
     version='0.1.5',
-    python_requires=">=3.3",
+    python_requires=">=3.4",
     description="A simple library for working with the IRC protocol",
     url='https://github.com/TotallyNotRobots/py-irclib',
     author='linuxdaemon',
@@ -13,7 +13,7 @@ setup(
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
     ],
     keywords='irc irc-parser',
     packages=['irclib', 'irclib.util'],
