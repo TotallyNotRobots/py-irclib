@@ -1,4 +1,4 @@
-from irclib.string import String, ASCII
+from irclib.string import String, ASCII, RFC1459
 
 
 def test_comparisons():
@@ -37,3 +37,12 @@ def test_comparisons():
 
     assert "B" > str2
     assert str2 < "B"
+
+
+def test_rfc1459():
+    str1 = String("ABC|{", RFC1459)
+    str2 = String("abc\\[", RFC1459)
+
+    assert str1 == str2
+    assert str1.lower() == str2.lower()
+    assert str1.upper() == str2.upper()
