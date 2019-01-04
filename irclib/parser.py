@@ -430,9 +430,9 @@ class ParamList(Parseable, list):
             return ParamList()
 
         args = list(data[:-1])
-        if data[-1].startswith(':'):
+        if data[-1].startswith(':') or not data[-1]:
             has_trail = True
-            args.append(data[-1][1:])
+            args.append(data[-1])
         else:
             has_trail = False
             args.append(data[-1])
