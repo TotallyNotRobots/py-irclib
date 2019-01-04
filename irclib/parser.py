@@ -6,10 +6,8 @@ Backported from async-irc (https://github.com/snoonetIRC/async-irc.git)
 
 import re
 from abc import ABCMeta, abstractmethod
-from collections import namedtuple
 
 from irclib.errors import ParseError
-from irclib.util.frozendict import FrozenDict
 
 TAGS_SENTINEL = '@'
 TAGS_SEP = ';'
@@ -57,14 +55,42 @@ class Parseable(metaclass=ABCMeta):
         raise NotImplementedError
 
 
-_Cap = namedtuple('_Cap', 'name value')
-
-
-class Cap(Parseable, _Cap):
+class Cap(Parseable):
     """Represents a CAP entity as defined in IRCv3.2"""
 
-    def __new__(cls, name, value=None):
-        return _Cap.__new__(cls, name, value)
+    def __init__(self, name, value=None):
+        self._name = name
+        self._value = value
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def value(self):
+        return self._value
+
+    @property
+    def _data(self):
+        return self.name, self.value
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self == self.parse(other)
+
+        if isinstance(other, Cap):
+            return tuple(self) == tuple(other)
+
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, str):
+            return self != self.parse(other)
+
+        if isinstance(other, Cap):
+            return tuple(self) != tuple(other)
+
+        return NotImplemented
 
     def __str__(self):
         """
@@ -75,6 +101,12 @@ class Cap(Parseable, _Cap):
 
         return self.name
 
+    def __iter__(self):
+        """
+        Allow unpacking as a tuple
+        """
+        return iter(self._data)
+
     @staticmethod
     def parse(text):
         """Parse a CAP entity from a string
@@ -84,8 +116,26 @@ class Cap(Parseable, _Cap):
         return Cap(name, value or None)
 
 
-class CapList(Parseable, tuple):
+class CapList(Parseable, list):
     """Represents a list of CAP entities"""
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self == self.parse(other)
+
+        if isinstance(other, list):
+            return list(self) == list(other)
+
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, str):
+            return self != self.parse(other)
+
+        if isinstance(other, list):
+            return list(self) != list(other)
+
+        return NotImplemented
 
     def __str__(self):
         """
@@ -108,16 +158,25 @@ class CapList(Parseable, tuple):
         return CapList(map(Cap.parse, stripped.split(CAP_SEP)))
 
 
-_MessageTag = namedtuple('_MessageTag', 'name value')
-
-
-class MessageTag(Parseable, _MessageTag):
+class MessageTag(Parseable):
     """
     Basic class to wrap a message tag
     """
 
-    def __new__(cls, name, value=None):
-        return _MessageTag.__new__(cls, name, value)
+    def __init__(self, name, value=None):
+        self._name = name
+        self._value = value
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def value(self):
+        return self._value
+
+    def __iter__(self):
+        return iter((self.name, self.value))
 
     @staticmethod
     def unescape(value):
@@ -165,8 +224,17 @@ class MessageTag(Parseable, _MessageTag):
         if isinstance(other, str):
             return self == self.parse(other)
 
-        if isinstance(other, type(self)):
+        if isinstance(other, MessageTag):
             return tuple(self) == tuple(other)
+
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, str):
+            return self != self.parse(other)
+
+        if isinstance(other, MessageTag):
+            return tuple(self) != tuple(other)
 
         return NotImplemented
 
@@ -185,7 +253,7 @@ class MessageTag(Parseable, _MessageTag):
         return MessageTag(name, value or None)
 
 
-class TagList(Parseable, FrozenDict):
+class TagList(Parseable, dict):
     """Object representing the list of message tags on a line"""
 
     def __init__(self, tags):
@@ -193,6 +261,24 @@ class TagList(Parseable, FrozenDict):
 
     def __str__(self):
         return TAGS_SENTINEL + TAGS_SEP.join(map(str, self.values()))
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self == TagList.parse(other)
+
+        if isinstance(other, dict):
+            return dict(self) == dict(other)
+
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, str):
+            return self != TagList.parse(other)
+
+        if isinstance(other, dict):
+            return dict(self) != dict(other)
+
+        return NotImplemented
 
     @staticmethod
     def parse(text):
@@ -207,16 +293,31 @@ class TagList(Parseable, FrozenDict):
         )
 
 
-_Prefix = namedtuple('_Prefix', 'nick user host')
-
-
-class Prefix(Parseable, _Prefix):
+class Prefix(Parseable):
     """
     Object representing the prefix of a line
     """
 
-    def __new__(cls, nick, user=None, host=None):
-        return _Prefix.__new__(cls, nick, user, host)
+    def __init__(self, nick, user=None, host=None):
+        self._nick = nick
+        self._user = user
+        self._host = host
+
+    @property
+    def nick(self):
+        return self._nick
+
+    @property
+    def user(self):
+        return self._user
+
+    @property
+    def ident(self):
+        return self._user
+
+    @property
+    def host(self):
+        return self._host
 
     @property
     def mask(self):
@@ -232,11 +333,36 @@ class Prefix(Parseable, _Prefix):
 
         return mask
 
+    @property
+    def _data(self):
+        return self.nick, self.user, self.host
+
+    def __iter__(self):
+        return iter(self._data)
+
     def __str__(self):
         return PREFIX_SENTINEL + self.mask
 
     def __bool__(self):
         return bool(self.nick)
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self == self.parse(other)
+
+        if isinstance(other, Prefix):
+            return self._data == other._data
+
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, str):
+            return self != self.parse(other)
+
+        if isinstance(other, Prefix):
+            return self._data != other._data
+
+        return NotImplemented
 
     @staticmethod
     def parse(text):
@@ -247,7 +373,7 @@ class Prefix(Parseable, _Prefix):
         :return: Parsed Object
         """
         if not text:
-            return Prefix('', None, None)
+            return Prefix('')
 
         match = PREFIX_RE.match(text)
         if not match:
@@ -257,25 +383,60 @@ class Prefix(Parseable, _Prefix):
         return Prefix(nick, user, host)
 
 
-class ParamList(Parseable, tuple):
+class ParamList(Parseable, list):
     """
     An object representing the parameter list from a line
     """
 
-    def __new__(cls, seq, has_trail=False):
-        seq = list(seq)
-        has_trail = has_trail or (seq and PARAM_SEP in seq[-1])
-        if seq:
-            seq[-1] = (TRAIL_SENTINEL if has_trail else "") + seq[-1]
-
-        return tuple.__new__(cls, seq)
+    def __init__(self, *params, has_trail=False):
+        super().__init__(params)
+        self._has_trail = has_trail
 
     @property
     def has_trail(self):
-        return self and self[-1][:1] == TRAIL_SENTINEL
+        return self._has_trail
 
     def __str__(self):
+        if not self:
+            return ''
+
+        if self.has_trail or PARAM_SEP in self[-1]:
+            return PARAM_SEP.join(self[:-1] + [':' + self[-1]])
+
         return PARAM_SEP.join(self)
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self == self.parse(other)
+
+        if isinstance(other, list):
+            return list(self) == list(other)
+
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, str):
+            return self != self.parse(other)
+
+        if isinstance(other, list):
+            return list(self) != list(other)
+
+        return NotImplemented
+
+    @staticmethod
+    def from_list(data):
+        if not data:
+            return ParamList()
+
+        args = list(data[:-1])
+        if data[-1].startswith(':'):
+            has_trail = True
+            args.append(data[-1][1:])
+        else:
+            has_trail = False
+            args.append(data[-1])
+
+        return ParamList(*args, has_trail=has_trail)
 
     @staticmethod
     def parse(text):
@@ -297,19 +458,61 @@ class ParamList(Parseable, tuple):
             if arg:
                 args.append(arg)
 
-        return ParamList(args, has_trail=has_trail)
+        return ParamList(*args, has_trail=has_trail)
 
 
-_Message = namedtuple('_Message', 'tags prefix command parameters')
-
-
-class Message(Parseable, _Message):
+class Message(Parseable):
     """
     An object representing a parsed IRC line
     """
 
-    def __new__(cls, tags=None, prefix=None, command=None, parameters=None):
-        return _Message.__new__(cls, tags, prefix, command, parameters)
+    def __init__(self, tags, prefix, command, *parameters):
+        if isinstance(tags, TagList):
+            self._tags = tags
+        elif isinstance(tags, str):
+            self._tags = TagList.parse(tags)
+        elif tags is None:
+            self._tags = TagList([])
+        else:
+            self._tags = TagList(MessageTag.parse(str(tag)) for tag in tags)
+
+        if isinstance(prefix, Prefix):
+            self._prefix = prefix
+        elif isinstance(prefix, str):
+            self._prefix = Prefix.parse(prefix)
+        elif prefix is None:
+            self._prefix = Prefix('')
+        else:
+            self._prefix = Prefix(*prefix)
+
+        self._command = command
+
+        if len(parameters) == 1 and not isinstance(parameters, str):
+            if isinstance(parameters, ParamList):
+                self._parameters = parameters[0]
+            else:
+                self._parameters = ParamList.from_list(parameters[0])
+        else:
+            self._parameters = ParamList.parse(parameters)
+
+    @property
+    def tags(self):
+        return self._tags
+
+    @property
+    def prefix(self):
+        return self._prefix
+
+    @property
+    def command(self):
+        return self._command
+
+    @property
+    def parameters(self):
+        return self._parameters
+
+    def __iter__(self):
+        return iter((self.tags, self.prefix, self.command, self.parameters))
 
     def __str__(self):
         return PARAM_SEP.join(map(str, filter(None, self)))
@@ -323,6 +526,15 @@ class Message(Parseable, _Message):
 
         if isinstance(other, Message):
             return tuple(self) == tuple(other)
+
+        return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, (str, bytes)):
+            return self != Message.parse(other)
+
+        if isinstance(other, Message):
+            return tuple(self) != tuple(other)
 
         return NotImplemented
 

@@ -1,7 +1,8 @@
+import pytest
 from pytest import raises
 
 from irclib.errors import ParseError
-from irclib.parser import Message, CapList, Cap, MessageTag
+from irclib.parser import Message, CapList, Cap, MessageTag, TagList, Prefix, ParamList
 
 
 def test_line():
@@ -69,3 +70,41 @@ def test_message_tags():
 
     with raises(ParseError):
         MessageTag.parse("key=value\\")
+
+
+def test_trail():
+    """Ensure this parser does not have the same issue as https://github.com/hexchat/hexchat/issues/2271"""
+    text = "COMMAND thing thing :thing"
+    parsed = Message.parse(text)
+
+    assert "COMMAND" == parsed.command
+
+    for i in range(3):
+        assert "thing" == parsed.parameters[i]
+
+
+@pytest.mark.parametrize('parse_type,text', [
+    (MessageTag, 'hi'),
+    (MessageTag, 'hello=world'),
+    (MessageTag, 'he\\:llo=\\swor\\r\\\\ld'),
+
+    (TagList, 'hi'),
+    (TagList, 'hello; there'),
+    (TagList, 'hello; there;'),
+    (TagList, 'hello=world; there'),
+
+    (Prefix, 'nick'),
+    (Prefix, 'nick!user'),
+    (Prefix, 'nick@host'),
+    (Prefix, 'nick!user@host'),
+
+    (ParamList, 'test test'),
+    (ParamList, 'test :test'),
+    (ParamList, 'test :test test'),
+
+    (Message, 'COMMAND'),
+    (Message, 'command'),
+])
+def test_comparisons(parse_type, text):
+    assert text == parse_type.parse(text)
+    assert not text != parse_type.parse(text)
