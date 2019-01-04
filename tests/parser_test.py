@@ -62,16 +62,13 @@ class TestCaps:
 def test_message_tags():
     cases = (
         ("a=b", "a", "b"),
-        ("test/blah=", "test/blah", None),
+        ("test/blah=", "test/blah", ''),
         ("blah=aa\\r\\n\\:\\\\", "blah", "aa\r\n;\\"),
     )
     for text, name, value in cases:
         tag = MessageTag.parse(text)
         assert tag.name == name
         assert tag.value == value
-
-    with raises(ParseError):
-        MessageTag.parse("key=value\\")
 
 
 def test_trail():
