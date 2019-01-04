@@ -129,3 +129,15 @@ def test_msg_split(data):
 
     # Make sure we handled everything
     assert not atoms
+
+
+@pytest.mark.parametrize('data', parser_tests.data.userhost_split['tests'])
+def test_userhost_split(data):
+    source = Prefix.parse(data['source'])
+    atoms = data['atoms'].copy()
+
+    assert source.nick == atoms.pop('nick', '')
+    assert source.user == atoms.pop('user', '')
+    assert source.host == atoms.pop('host', '')
+
+    assert not atoms
