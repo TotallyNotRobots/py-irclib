@@ -1,8 +1,6 @@
 import parser_tests.data
 import pytest
-from pytest import raises
 
-from irclib.errors import ParseError
 from irclib.parser import Message, CapList, Cap, MessageTag, TagList, Prefix, ParamList
 from irclib.string import String, ASCII
 
