@@ -294,9 +294,9 @@ class Prefix(Parseable):
     """
 
     def __init__(self, nick, user=None, host=None):
-        self._nick = nick
-        self._user = user
-        self._host = host
+        self._nick = nick or ''
+        self._user = user or ''
+        self._host = host or ''
 
     @property
     def nick(self):
