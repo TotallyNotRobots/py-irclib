@@ -1,8 +1,10 @@
+import parser_tests.data
 import pytest
 from pytest import raises
 
 from irclib.errors import ParseError
 from irclib.parser import Message, CapList, Cap, MessageTag, TagList, Prefix, ParamList
+from irclib.string import String, ASCII
 
 
 def test_line():
@@ -108,3 +110,27 @@ def test_trail():
 def test_comparisons(parse_type, text):
     assert text == parse_type.parse(text)
     assert not text != parse_type.parse(text)
+
+
+@pytest.mark.parametrize('data', parser_tests.data.msg_split['tests'])
+def test_msg_split(data):
+    msg = Message.parse(data['input'])
+    atoms = data['atoms'].copy()
+
+    # We store tags a bit differently than the test data expects, convert the format
+    if msg.tags is not None:
+        tags_dict = {name: tag.value for name, tag in msg.tags.items()}
+    else:
+        tags_dict = None
+
+    assert tags_dict == atoms.pop('tags', None)
+
+    assert msg.prefix == atoms.pop('source', None)
+
+    # Commands are case-insensitive
+    assert String(msg.command, ASCII) == atoms.pop('verb', None)
+
+    assert msg.parameters == atoms.pop('params', [])
+
+    # Make sure we handled everything
+    assert not atoms
