@@ -120,12 +120,13 @@ def test_msg_split(data):
 
     assert tags_dict == atoms.pop('tags', None)
 
-    assert msg.prefix == atoms.pop('source', None)
+    prefix = None if msg.prefix is None else str(msg.prefix)
+    assert prefix == atoms.pop('source', None)
 
     # Commands are case-insensitive
     assert String(msg.command, ASCII) == atoms.pop('verb', None)
 
-    assert msg.parameters == atoms.pop('params', [])
+    assert list(msg.parameters) == atoms.pop('params', [])
 
     # Make sure we handled everything
     assert not atoms
@@ -141,3 +142,23 @@ def test_userhost_split(data):
     assert source.host == atoms.pop('host', '')
 
     assert not atoms
+
+
+@pytest.mark.parametrize('data', parser_tests.data.msg_join['tests'])
+def test_msg_join(data):
+    atoms = data['atoms']
+    msg = Message(
+        atoms.pop('tags', None),
+        atoms.pop('source', None),
+        atoms.pop('verb', None),
+        atoms.pop('params', []),
+    )
+
+    assert not atoms, "Not all atoms were handled"
+
+    matches = data['matches']
+    if len(matches) > 1:
+        assert any(str(msg) == match for match in data['matches'])
+    else:
+        # With single matches, make it easier to debug
+        assert str(msg) == matches[0]
