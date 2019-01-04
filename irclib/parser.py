@@ -402,7 +402,7 @@ class ParamList(Parseable, list):
             return ''
 
         if self.has_trail or PARAM_SEP in self[-1]:
-            return PARAM_SEP.join(self[:-1] + [':' + self[-1]])
+            return PARAM_SEP.join(self[:-1] + [TRAIL_SENTINEL + self[-1]])
 
         return PARAM_SEP.join(self)
 
@@ -430,7 +430,7 @@ class ParamList(Parseable, list):
             return ParamList()
 
         args = list(data[:-1])
-        if data[-1].startswith(':') or not data[-1]:
+        if data[-1].startswith(TRAIL_SENTINEL) or not data[-1]:
             has_trail = True
             args.append(data[-1])
         else:
@@ -518,8 +518,8 @@ class Message(Parseable):
         return iter((self.tags, self.prefix, self.command, self.parameters))
 
     def __str__(self):
-        tag_str = '' if self.tags is None else '@' + str(self.tags)
-        prefix_str = '' if self.prefix is None else ':' + str(self.prefix)
+        tag_str = '' if self.tags is None else TAGS_SENTINEL + str(self.tags)
+        prefix_str = '' if self.prefix is None else PREFIX_SENTINEL + str(self.prefix)
 
         return PARAM_SEP.join(
             map(str, filter(None, (
