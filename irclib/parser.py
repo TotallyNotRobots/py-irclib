@@ -287,6 +287,12 @@ class TagList(Parseable, dict):
             map(MessageTag.parse, filter(None, text.split(TAGS_SEP)))
         )
 
+    @staticmethod
+    def from_dict(tags):
+        return TagList(
+            MessageTag(k, v) for k, v in tags.items()
+        )
+
 
 class Prefix(Parseable):
     """
@@ -464,6 +470,8 @@ class Message(Parseable):
     def __init__(self, tags, prefix, command, *parameters):
         if isinstance(tags, TagList):
             self._tags = tags
+        elif isinstance(tags, dict):
+            self._tags = TagList.from_dict(tags)
         elif isinstance(tags, str):
             self._tags = TagList.parse(tags)
         elif tags is None:
