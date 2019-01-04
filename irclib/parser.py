@@ -255,7 +255,7 @@ class TagList(Parseable, dict):
         super().__init__((tag.name, tag) for tag in tags)
 
     def __str__(self):
-        return TAGS_SENTINEL + TAGS_SEP.join(map(str, self.values()))
+        return TAGS_SEP.join(map(str, self.values()))
 
     def __eq__(self, other):
         if isinstance(other, str):
@@ -336,7 +336,7 @@ class Prefix(Parseable):
         return iter(self._data)
 
     def __str__(self):
-        return PREFIX_SENTINEL + self.mask
+        return self.mask
 
     def __bool__(self):
         return bool(self.nick)
@@ -510,7 +510,14 @@ class Message(Parseable):
         return iter((self.tags, self.prefix, self.command, self.parameters))
 
     def __str__(self):
-        return PARAM_SEP.join(map(str, filter(None, self)))
+        tag_str = '' if self.tags is None else '@' + str(self.tags)
+        prefix_str = '' if self.prefix is None else ':' + str(self.prefix)
+
+        return PARAM_SEP.join(
+            map(str, filter(None, (
+                tag_str, prefix_str, self.command, self.parameters
+            )))
+        )
 
     def __bool__(self):
         return any(self)
