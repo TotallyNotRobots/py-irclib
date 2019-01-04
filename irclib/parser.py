@@ -186,20 +186,15 @@ class MessageTag(Parseable):
         :return: Unescaped string
         """
         new_value = ""
-        found = False
-        for i in range(len(value)):
-            if found:
-                found = False
-                continue
-
-            if value[i] == '\\':
-                if i + 1 >= len(value):
-                    raise ParseError("Unexpected end of string while parsing: {}".format(value))
-
-                new_value += TAG_VALUE_ESCAPES[value[i:i + 2]]
-                found = True
+        escaped = False
+        for i, c in enumerate(value):
+            if escaped:
+                new_value += TAG_VALUE_ESCAPES.get('\\{}'.format(c), c)
+                escaped = False
+            elif c == '\\':
+                escaped = True
             else:
-                new_value += value[i]
+                new_value += c
 
         return new_value
 
@@ -246,11 +241,11 @@ class MessageTag(Parseable):
         :param text: The basic tag string
         :return: The MessageTag object
         """
-        name, _, value = text.partition(TAG_VALUE_SEP)
+        name, sep, value = text.partition(TAG_VALUE_SEP)
         if value:
             value = MessageTag.unescape(value)
 
-        return MessageTag(name, value or None)
+        return MessageTag(name, value if sep else None)
 
 
 class TagList(Parseable, dict):
@@ -410,7 +405,7 @@ class ParamList(Parseable, list):
             return self == self.parse(other)
 
         if isinstance(other, list):
-            return list(self) == list(other)
+            return list(self) == list(self.from_list(other))
 
         return NotImplemented
 
@@ -472,7 +467,7 @@ class Message(Parseable):
         elif isinstance(tags, str):
             self._tags = TagList.parse(tags)
         elif tags is None:
-            self._tags = TagList([])
+            self._tags = None
         else:
             self._tags = TagList(MessageTag.parse(str(tag)) for tag in tags)
 
@@ -481,7 +476,7 @@ class Message(Parseable):
         elif isinstance(prefix, str):
             self._prefix = Prefix.parse(prefix)
         elif prefix is None:
-            self._prefix = Prefix('')
+            self._prefix = None
         else:
             self._prefix = Prefix(*prefix)
 
@@ -555,8 +550,10 @@ class Message(Parseable):
             prefix, _, text = text.partition(PARAM_SEP)
 
         command, _, params = text.partition(PARAM_SEP)
-        tags = TagList.parse(tags[1:])
-        prefix = Prefix.parse(prefix[1:])
+        # Differentiate empty tags '@ CMD' from no tags 'CMD'
+        tags = TagList.parse(tags[1:]) if tags else None
+        # Differentiate empty prefix ': CMD' from no prefix 'CMD'
+        prefix = Prefix.parse(prefix[1:]) if prefix else None
         command = command.upper()
         params = ParamList.parse(params)
         return Message(tags, prefix, command, params)
