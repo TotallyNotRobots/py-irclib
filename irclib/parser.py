@@ -522,9 +522,10 @@ class Message(Parseable):
         prefix_str = '' if self.prefix is None else PREFIX_SENTINEL + str(self.prefix)
 
         return PARAM_SEP.join(
-            map(str, filter(None, (
+            str(s) for s in (
                 tag_str, prefix_str, self.command, self.parameters
-            )))
+            )
+            if s
         )
 
     def __bool__(self):
