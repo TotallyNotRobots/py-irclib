@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='py-irclib',
-    version='0.1.5',
+    version='0.2.0',
     python_requires=">=3.4",
     description="A simple library for working with the IRC protocol",
     url='https://github.com/TotallyNotRobots/py-irclib',
