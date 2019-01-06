@@ -23,7 +23,7 @@ TRAIL_SENTINEL = ':'
 CAP_SEP = ' '
 CAP_VALUE_SEP = '='
 
-PREFIX_RE = re.compile(r'^:?(?P<nick>.+?)(?:!(?P<user>.+?))?(?:@(?P<host>.+?))?$')
+PREFIX_RE = re.compile(r'^:?(?P<nick>.*?)(?:!(?P<user>.*?))?(?:@(?P<host>.*?))?$')
 
 TAG_VALUE_ESCAPES = {
     '\\s': ' ',
@@ -186,20 +186,15 @@ class MessageTag(Parseable):
         :return: Unescaped string
         """
         new_value = ""
-        found = False
-        for i in range(len(value)):
-            if found:
-                found = False
-                continue
-
-            if value[i] == '\\':
-                if i + 1 >= len(value):
-                    raise ParseError("Unexpected end of string while parsing: {}".format(value))
-
-                new_value += TAG_VALUE_ESCAPES[value[i:i + 2]]
-                found = True
+        escaped = False
+        for i, c in enumerate(value):
+            if escaped:
+                new_value += TAG_VALUE_ESCAPES.get('\\{}'.format(c), c)
+                escaped = False
+            elif c == '\\':
+                escaped = True
             else:
-                new_value += value[i]
+                new_value += c
 
         return new_value
 
@@ -246,11 +241,11 @@ class MessageTag(Parseable):
         :param text: The basic tag string
         :return: The MessageTag object
         """
-        name, _, value = text.partition(TAG_VALUE_SEP)
+        name, sep, value = text.partition(TAG_VALUE_SEP)
         if value:
             value = MessageTag.unescape(value)
 
-        return MessageTag(name, value or None)
+        return MessageTag(name, value if sep else None)
 
 
 class TagList(Parseable, dict):
@@ -260,7 +255,7 @@ class TagList(Parseable, dict):
         super().__init__((tag.name, tag) for tag in tags)
 
     def __str__(self):
-        return TAGS_SENTINEL + TAGS_SEP.join(map(str, self.values()))
+        return TAGS_SEP.join(map(str, self.values()))
 
     def __eq__(self, other):
         if isinstance(other, str):
@@ -292,6 +287,12 @@ class TagList(Parseable, dict):
             map(MessageTag.parse, filter(None, text.split(TAGS_SEP)))
         )
 
+    @staticmethod
+    def from_dict(tags):
+        return TagList(
+            MessageTag(k, v) for k, v in tags.items()
+        )
+
 
 class Prefix(Parseable):
     """
@@ -299,9 +300,9 @@ class Prefix(Parseable):
     """
 
     def __init__(self, nick, user=None, host=None):
-        self._nick = nick
-        self._user = user
-        self._host = host
+        self._nick = nick or ''
+        self._user = user or ''
+        self._host = host or ''
 
     @property
     def nick(self):
@@ -341,7 +342,7 @@ class Prefix(Parseable):
         return iter(self._data)
 
     def __str__(self):
-        return PREFIX_SENTINEL + self.mask
+        return self.mask
 
     def __bool__(self):
         return bool(self.nick)
@@ -401,7 +402,7 @@ class ParamList(Parseable, list):
             return ''
 
         if self.has_trail or PARAM_SEP in self[-1]:
-            return PARAM_SEP.join(self[:-1] + [':' + self[-1]])
+            return PARAM_SEP.join(self[:-1] + [TRAIL_SENTINEL + self[-1]])
 
         return PARAM_SEP.join(self)
 
@@ -410,7 +411,7 @@ class ParamList(Parseable, list):
             return self == self.parse(other)
 
         if isinstance(other, list):
-            return list(self) == list(other)
+            return list(self) == list(self.from_list(other))
 
         return NotImplemented
 
@@ -429,9 +430,9 @@ class ParamList(Parseable, list):
             return ParamList()
 
         args = list(data[:-1])
-        if data[-1].startswith(':'):
+        if data[-1].startswith(TRAIL_SENTINEL) or not data[-1]:
             has_trail = True
-            args.append(data[-1][1:])
+            args.append(data[-1])
         else:
             has_trail = False
             args.append(data[-1])
@@ -469,10 +470,12 @@ class Message(Parseable):
     def __init__(self, tags, prefix, command, *parameters):
         if isinstance(tags, TagList):
             self._tags = tags
+        elif isinstance(tags, dict):
+            self._tags = TagList.from_dict(tags)
         elif isinstance(tags, str):
             self._tags = TagList.parse(tags)
         elif tags is None:
-            self._tags = TagList([])
+            self._tags = None
         else:
             self._tags = TagList(MessageTag.parse(str(tag)) for tag in tags)
 
@@ -481,7 +484,7 @@ class Message(Parseable):
         elif isinstance(prefix, str):
             self._prefix = Prefix.parse(prefix)
         elif prefix is None:
-            self._prefix = Prefix('')
+            self._prefix = None
         else:
             self._prefix = Prefix(*prefix)
 
@@ -515,7 +518,15 @@ class Message(Parseable):
         return iter((self.tags, self.prefix, self.command, self.parameters))
 
     def __str__(self):
-        return PARAM_SEP.join(map(str, filter(None, self)))
+        tag_str = '' if self.tags is None else TAGS_SENTINEL + str(self.tags)
+        prefix_str = '' if self.prefix is None else PREFIX_SENTINEL + str(self.prefix)
+
+        return PARAM_SEP.join(
+            str(s) for s in (
+                tag_str, prefix_str, self.command, self.parameters
+            )
+            if s
+        )
 
     def __bool__(self):
         return any(self)
@@ -555,8 +566,10 @@ class Message(Parseable):
             prefix, _, text = text.partition(PARAM_SEP)
 
         command, _, params = text.partition(PARAM_SEP)
-        tags = TagList.parse(tags[1:])
-        prefix = Prefix.parse(prefix[1:])
+        # Differentiate empty tags '@ CMD' from no tags 'CMD'
+        tags = TagList.parse(tags[1:]) if tags else None
+        # Differentiate empty prefix ': CMD' from no prefix 'CMD'
+        prefix = Prefix.parse(prefix[1:]) if prefix else None
         command = command.upper()
         params = ParamList.parse(params)
         return Message(tags, prefix, command, params)

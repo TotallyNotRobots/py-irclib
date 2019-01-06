@@ -1,8 +1,8 @@
+import parser_tests.data
 import pytest
-from pytest import raises
 
-from irclib.errors import ParseError
 from irclib.parser import Message, CapList, Cap, MessageTag, TagList, Prefix, ParamList
+from irclib.string import String, ASCII
 
 
 def test_line():
@@ -60,16 +60,13 @@ class TestCaps:
 def test_message_tags():
     cases = (
         ("a=b", "a", "b"),
-        ("test/blah=", "test/blah", None),
+        ("test/blah=", "test/blah", ''),
         ("blah=aa\\r\\n\\:\\\\", "blah", "aa\r\n;\\"),
     )
     for text, name, value in cases:
         tag = MessageTag.parse(text)
         assert tag.name == name
         assert tag.value == value
-
-    with raises(ParseError):
-        MessageTag.parse("key=value\\")
 
 
 def test_trail():
@@ -108,3 +105,60 @@ def test_trail():
 def test_comparisons(parse_type, text):
     assert text == parse_type.parse(text)
     assert not text != parse_type.parse(text)
+
+
+@pytest.mark.parametrize('data', parser_tests.data.msg_split['tests'])
+def test_msg_split(data):
+    msg = Message.parse(data['input'])
+    atoms = data['atoms'].copy()
+
+    # We store tags a bit differently than the test data expects, convert the format
+    if msg.tags is not None:
+        tags_dict = {name: tag.value for name, tag in msg.tags.items()}
+    else:
+        tags_dict = None
+
+    assert tags_dict == atoms.pop('tags', None)
+
+    prefix = None if msg.prefix is None else str(msg.prefix)
+    assert prefix == atoms.pop('source', None)
+
+    # Commands are case-insensitive
+    assert String(msg.command, ASCII) == atoms.pop('verb', None)
+
+    assert list(msg.parameters) == atoms.pop('params', [])
+
+    # Make sure we handled everything
+    assert not atoms
+
+
+@pytest.mark.parametrize('data', parser_tests.data.userhost_split['tests'])
+def test_userhost_split(data):
+    source = Prefix.parse(data['source'])
+    atoms = data['atoms'].copy()
+
+    assert source.nick == atoms.pop('nick', '')
+    assert source.user == atoms.pop('user', '')
+    assert source.host == atoms.pop('host', '')
+
+    assert not atoms
+
+
+@pytest.mark.parametrize('data', parser_tests.data.msg_join['tests'])
+def test_msg_join(data):
+    atoms = data['atoms']
+    msg = Message(
+        atoms.pop('tags', None),
+        atoms.pop('source', None),
+        atoms.pop('verb', None),
+        atoms.pop('params', []),
+    )
+
+    assert not atoms, "Not all atoms were handled"
+
+    matches = data['matches']
+    if len(matches) > 1:
+        assert any(str(msg) == match for match in data['matches'])
+    else:
+        # With single matches, make it easier to debug
+        assert str(msg) == matches[0]
