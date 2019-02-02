@@ -490,13 +490,14 @@ class Message(Parseable):
 
         self._command = command
 
-        if len(parameters) == 1 and not isinstance(parameters, str):
-            if isinstance(parameters, ParamList):
+        if len(parameters) == 1 and not isinstance(parameters[0], str):
+            # This seems to be a list
+            if isinstance(parameters[0], ParamList):
                 self._parameters = parameters[0]
             else:
                 self._parameters = ParamList.from_list(parameters[0])
         else:
-            self._parameters = ParamList.parse(parameters)
+            self._parameters = ParamList.from_list(parameters)
 
     @property
     def tags(self):

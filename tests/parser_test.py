@@ -162,3 +162,12 @@ def test_msg_join(data):
     else:
         # With single matches, make it easier to debug
         assert str(msg) == matches[0]
+
+
+@pytest.mark.parametrize('text,has_trail', (
+    ("PRIVMSG #channel :message", True),
+    ("PRIVMSG #channel :message text", True),
+))
+def test_has_trail(text, has_trail):
+    msg = Message.parse(text)
+    assert msg.parameters.has_trail == has_trail
