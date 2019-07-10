@@ -51,6 +51,21 @@ def test_comparisons() -> None:
     assert "B" >= str2
     assert not "B" <= str2
 
+    with pytest.raises(TypeError):
+        assert not str2 < 1  # type: ignore[operator]
+
+    with pytest.raises(TypeError):
+        assert not str2 <= 1  # type: ignore[operator]
+
+    with pytest.raises(TypeError):
+        assert not str2 > 1  # type: ignore[operator]
+
+    with pytest.raises(TypeError):
+        assert not str2 >= 1  # type: ignore[operator]
+
+    assert not str2 == 1
+    assert str2 != 1
+
     assert str2 != "B"
 
     assert str1 != 5
