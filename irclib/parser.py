@@ -159,7 +159,15 @@ class CapList(Parseable, list):
         # Some networks (ie: freenode) send a trailing space in a CAP ACK
         stripped = text.strip()
 
-        return CapList(map(Cap.parse, stripped.split(CAP_SEP)))
+        if not text:
+            caps = []
+        else:
+            caps = (
+                Cap.parse(s)
+                for s in stripped.split(CAP_SEP)
+            )
+
+        return CapList(caps)
 
 
 class MessageTag(Parseable):
