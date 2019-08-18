@@ -11,7 +11,7 @@ install:
 script:
 - pytest
 after_success:
-- coveralls
+- codecov
 deploy:
   provider: pypi
   user: linuxdaemon
