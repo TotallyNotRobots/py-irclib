@@ -263,7 +263,7 @@ class MessageTag(Parseable):
 class TagList(Parseable, dict):
     """Object representing the list of message tags on a line"""
 
-    def __init__(self, tags):
+    def __init__(self, tags=()):
         super().__init__((tag.name, tag) for tag in tags)
 
     def __str__(self):
