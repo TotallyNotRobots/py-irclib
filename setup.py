@@ -3,8 +3,8 @@ from setuptools import setup
 
 setup(
     name='py-irclib',
-    version='0.2.1',
-    python_requires=">=3.4",
+    version='0.3.0',
+    python_requires=">=3.5",
     description="A simple library for working with the IRC protocol",
     url='https://github.com/TotallyNotRobots/py-irclib',
     author='linuxdaemon',
@@ -13,7 +13,6 @@ setup(
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
