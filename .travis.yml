@@ -1,16 +1,17 @@
 language: python
+dist: xenial
+sudo: true
 python:
-- '3.4'
 - '3.5'
 - '3.6'
-- nightly
+- '3.7'
 - pypy3
 install:
 - pip install -Ur requirements.txt
 script:
-- py.test . -v --cov . --cov-report term-missing
+- pytest
 after_success:
-- coveralls
+- codecov
 deploy:
   provider: pypi
   user: linuxdaemon
@@ -23,13 +24,3 @@ deploy:
     python: '3.6'
 env:
 - PYTHONPATH=.
-matrix:
-  allow_failures:
-    - python: "nightly"
-  include:
-    - python: '3.7'
-      dist: xenial
-      sudo: true
-    - python: '3.8-dev'
-      dist: xenial
-      sudo: true

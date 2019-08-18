@@ -9,6 +9,10 @@ from abc import ABCMeta, abstractmethod
 
 from irclib.errors import ParseError
 
+__all__ = (
+    'Cap', 'CapList', 'MessageTag', 'TagList', 'Prefix', 'ParamList', 'Message'
+)
+
 TAGS_SENTINEL = '@'
 TAGS_SEP = ';'
 TAG_VALUE_SEP = '='
@@ -155,7 +159,15 @@ class CapList(Parseable, list):
         # Some networks (ie: freenode) send a trailing space in a CAP ACK
         stripped = text.strip()
 
-        return CapList(map(Cap.parse, stripped.split(CAP_SEP)))
+        if not text:
+            caps = []
+        else:
+            caps = (
+                Cap.parse(s)
+                for s in stripped.split(CAP_SEP)
+            )
+
+        return CapList(caps)
 
 
 class MessageTag(Parseable):
@@ -251,29 +263,44 @@ class MessageTag(Parseable):
 class TagList(Parseable, dict):
     """Object representing the list of message tags on a line"""
 
-    def __init__(self, tags):
+    def __init__(self, tags=()):
         super().__init__((tag.name, tag) for tag in tags)
 
     def __str__(self):
         return TAGS_SEP.join(map(str, self.values()))
 
-    def __eq__(self, other):
-        if isinstance(other, str):
-            return self == TagList.parse(other)
+    @staticmethod
+    def _cmp_type_map(obj):
+        if isinstance(obj, str):
+            return TagList.parse(obj)
 
-        if isinstance(other, dict):
-            return dict(self) == dict(other)
+        if isinstance(obj, dict):
+            sample = next(iter(obj.values()), None)
+            if obj and (sample is None or isinstance(sample, str)):
+                # Handle str -> str dict
+                return TagList.from_dict(obj)
+
+            # Handle str -> MessageTag dict
+            return dict(obj)
+
+        if isinstance(obj, list):
+            return TagList(obj)
 
         return NotImplemented
+
+    def __eq__(self, other):
+        obj = self._cmp_type_map(other)
+        if obj is NotImplemented:
+            return NotImplemented
+
+        return dict(self) == dict(obj)
 
     def __ne__(self, other):
-        if isinstance(other, str):
-            return self != TagList.parse(other)
+        obj = self._cmp_type_map(other)
+        if obj is NotImplemented:
+            return NotImplemented
 
-        if isinstance(other, dict):
-            return dict(self) != dict(other)
-
-        return NotImplemented
+        return dict(self) != dict(obj)
 
     @staticmethod
     def parse(text):
@@ -299,7 +326,7 @@ class Prefix(Parseable):
     Object representing the prefix of a line
     """
 
-    def __init__(self, nick, user=None, host=None):
+    def __init__(self, nick=None, user=None, host=None):
         self._nick = nick or ''
         self._user = user or ''
         self._host = host or ''
@@ -345,7 +372,7 @@ class Prefix(Parseable):
         return self.mask
 
     def __bool__(self):
-        return bool(self.nick)
+        return any(self)
 
     def __eq__(self, other):
         if isinstance(other, str):
@@ -374,10 +401,11 @@ class Prefix(Parseable):
         :return: Parsed Object
         """
         if not text:
-            return Prefix('')
+            return Prefix()
 
         match = PREFIX_RE.match(text)
-        if not match:
+        if not match:  # pragma: no cover
+            # This should never trip, we are pretty lenient with prefixes
             raise ParseError("Invalid IRC prefix format")
 
         nick, user, host = match.groups()
@@ -401,7 +429,9 @@ class ParamList(Parseable, list):
         if not self:
             return ''
 
-        if self.has_trail or PARAM_SEP in self[-1]:
+        needs_trail = PARAM_SEP in self[-1] or self[-1].startswith(TRAIL_SENTINEL) or not self[-1]
+
+        if self.has_trail or needs_trail:
             return PARAM_SEP.join(self[:-1] + [TRAIL_SENTINEL + self[-1]])
 
         return PARAM_SEP.join(self)
