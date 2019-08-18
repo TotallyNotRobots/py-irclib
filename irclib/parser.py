@@ -269,23 +269,38 @@ class TagList(Parseable, dict):
     def __str__(self):
         return TAGS_SEP.join(map(str, self.values()))
 
-    def __eq__(self, other):
-        if isinstance(other, str):
-            return self == TagList.parse(other)
+    @staticmethod
+    def _cmp_type_map(obj):
+        if isinstance(obj, str):
+            return TagList.parse(obj)
 
-        if isinstance(other, dict):
-            return dict(self) == dict(other)
+        if isinstance(obj, dict):
+            sample = next(iter(obj.values()), None)
+            if obj and (sample is None or isinstance(sample, str)):
+                # Handle str -> str dict
+                return TagList.from_dict(obj)
+
+            # Handle str -> MessageTag dict
+            return dict(obj)
+
+        if isinstance(obj, list):
+            return TagList(obj)
 
         return NotImplemented
+
+    def __eq__(self, other):
+        obj = self._cmp_type_map(other)
+        if obj is NotImplemented:
+            return NotImplemented
+
+        return dict(self) == dict(obj)
 
     def __ne__(self, other):
-        if isinstance(other, str):
-            return self != TagList.parse(other)
+        obj = self._cmp_type_map(other)
+        if obj is NotImplemented:
+            return NotImplemented
 
-        if isinstance(other, dict):
-            return dict(self) != dict(other)
-
-        return NotImplemented
+        return dict(self) != dict(obj)
 
     @staticmethod
     def parse(text):
