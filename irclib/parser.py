@@ -429,7 +429,9 @@ class ParamList(Parseable, list):
         if not self:
             return ''
 
-        if self.has_trail or PARAM_SEP in self[-1]:
+        needs_trail = PARAM_SEP in self[-1] or self[-1].startswith(TRAIL_SENTINEL) or not self[-1]
+
+        if self.has_trail or needs_trail:
             return PARAM_SEP.join(self[:-1] + [TRAIL_SENTINEL + self[-1]])
 
         return PARAM_SEP.join(self)
