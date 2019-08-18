@@ -404,7 +404,8 @@ class Prefix(Parseable):
             return Prefix('')
 
         match = PREFIX_RE.match(text)
-        if not match:
+        if not match:  # pragma: no cover
+            # This should never trip, we are pretty lenient with prefixes
             raise ParseError("Invalid IRC prefix format")
 
         nick, user, host = match.groups()
