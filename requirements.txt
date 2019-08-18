@@ -2,7 +2,5 @@ setuptools
 wheel
 pytest==4.0.2
 pytest-cov
-pytest-pep8
-flake8
 python-coveralls
 irc-parser-tests

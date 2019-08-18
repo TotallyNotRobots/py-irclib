@@ -9,7 +9,7 @@ python:
 install:
 - pip install -Ur requirements.txt
 script:
-- py.test . -v --cov . --cov-report term-missing
+- pytest
 after_success:
 - coveralls
 deploy:
