@@ -9,6 +9,10 @@ from abc import ABCMeta, abstractmethod
 
 from irclib.errors import ParseError
 
+__all__ = (
+    'Cap', 'CapList', 'MessageTag', 'TagList', 'Prefix', 'ParamList', 'Message'
+)
+
 TAGS_SENTINEL = '@'
 TAGS_SEP = ';'
 TAG_VALUE_SEP = '='

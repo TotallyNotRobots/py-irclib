@@ -1,3 +1,6 @@
+__all__ = ('FrozenDict',)
+
+
 class FrozenDict(dict):
     __slots__ = ("__hash",)
 

@@ -1,5 +1,7 @@
 from collections import namedtuple, Mapping
 
+__all__ = ('Numeric', 'numerics')
+
 Numeric = namedtuple('Numeric', 'name numeric')
 
 

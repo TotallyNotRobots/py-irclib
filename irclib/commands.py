@@ -1,5 +1,7 @@
 from collections import Mapping
 
+__all__ = ('Command', 'client_commands')
+
 
 class Command:
     def __init__(self, name, args=None, min_args=0, max_args=None):

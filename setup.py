@@ -1,5 +1,5 @@
 # coding=utf-8
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='py-irclib',
@@ -19,6 +19,6 @@ setup(
         'Programming Language :: Python :: 3 :: Only',
     ],
     keywords='irc irc-parser',
-    packages=['irclib', 'irclib.util'],
+    packages=find_packages(exclude=['tests']),
     install_requires=[],
 )

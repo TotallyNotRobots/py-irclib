@@ -5,6 +5,8 @@ IRC string utils
 import operator
 from functools import wraps
 
+__all__ = ('Casemap', 'RFC1459', 'STRICT_RFC1459', 'ASCII', 'String')
+
 
 class Casemap(tuple):
     __slots__ = ()
