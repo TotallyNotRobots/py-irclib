@@ -13,7 +13,7 @@ def test_line():
 
     assert msg1.command == "PRIVMSG"
 
-    msg2 = Message.parse("@test=data;test1=more\sdata :nick!user@host COMMAND arg1 arg2 :trailing text")
+    msg2 = Message.parse(r"@test=data;test1=more\sdata :nick!user@host COMMAND arg1 arg2 :trailing text")
 
     assert msg2.prefix.host == "host"
 
