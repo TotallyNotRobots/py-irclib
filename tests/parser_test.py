@@ -249,7 +249,8 @@ class TestTagList:
 
         assert len(tag_list) == len(tags)
 
-        for tag, (name, value) in zip(tag_list.values(), tags):
+        for name, value in tags:
+            tag = tag_list[name]
             assert tag.name == name
             assert tag.value == value
 
