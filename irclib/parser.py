@@ -326,7 +326,7 @@ class Prefix(Parseable):
     Object representing the prefix of a line
     """
 
-    def __init__(self, nick, user=None, host=None):
+    def __init__(self, nick=None, user=None, host=None):
         self._nick = nick or ''
         self._user = user or ''
         self._host = host or ''
@@ -372,7 +372,7 @@ class Prefix(Parseable):
         return self.mask
 
     def __bool__(self):
-        return bool(self.nick)
+        return any(self)
 
     def __eq__(self, other):
         if isinstance(other, str):
@@ -401,7 +401,7 @@ class Prefix(Parseable):
         :return: Parsed Object
         """
         if not text:
-            return Prefix('')
+            return Prefix()
 
         match = PREFIX_RE.match(text)
         if not match:  # pragma: no cover
