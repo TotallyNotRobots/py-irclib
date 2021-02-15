@@ -1,27 +1,67 @@
-__all__ = ('FrozenDict',)
+"""Frozen Dict"""
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    Iterator,
+    Mapping,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+)
+
+__all__ = ("FrozenDict",)
+
+V = TypeVar("V", bound=Any)
+SelfT = TypeVar("SelfT", bound="FrozenDict[Any]")
 
 
-class FrozenDict(dict):
-    __slots__ = ("__hash",)
+class FrozenDict(Mapping[str, V]):
+    """Frozen Mapping.
 
-    __setitem__ = None
-    __delitem__ = None
+    An immutable mapping of string -> Any type
+    """
 
-    pop = None
-    popitem = None
+    __slots__ = ("__hash", "__data")
 
-    clear = None
-    setdefault = None
-    update = None
+    def __getitem__(self, k: str) -> V:
+        return self.__data[k]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.__hash = None
+    def __len__(self) -> int:
+        return len(self.__data)
 
-    def copy(self, **kwargs):
-        return self.__class__(self, **kwargs)
+    def __iter__(self) -> Iterator[str]:
+        return iter(self.__data)
 
-    def __hash__(self):
+    def __init__(
+        self,
+        seq: Union[Mapping[str, V], Iterable[Tuple[str, V]], None] = None,
+        **kwargs: V,
+    ):
+        if seq is not None:
+            d = dict(seq, **kwargs)
+        else:
+            d = dict(**kwargs)
+
+        self.__data: Dict[str, V] = d
+        self.__hash: Optional[int] = None
+
+    def copy(self: SelfT, **kwargs: V) -> SelfT:
+        """Copy dict, replacing values according to kwargs.
+
+        >>> fd = FrozenDict(a=1)
+        >>> fd['a']
+        1
+        >>> fd1 = fd.copy(a=2)
+        >>> fd1['a']
+        2
+        >>> fd['a']
+        1
+        """
+        return self.__class__(self.__data, **kwargs)
+
+    def __hash__(self) -> int:
         if self.__hash is None:
             self.__hash = hash(tuple(self.items()))
 

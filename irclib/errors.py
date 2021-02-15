@@ -1,5 +1,7 @@
-__all__ = ('ParseError',)
+"""Library exceptions"""
+
+__all__ = ("ParseError",)
 
 
 class ParseError(ValueError):
-    pass
+    """An exception representing some error during parsing"""

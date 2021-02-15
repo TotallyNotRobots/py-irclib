@@ -1,12 +1,13 @@
 [report]
+fail_under = 100
 exclude_lines =
     pragma: no cover
-    def __repr__
     raise AssertionError
     raise NotImplementedError
     if __name__ == .__main__.:
 
 [run]
+branch = true
 omit =
-    tests/data/*
-    tests/util/*
+    venv/*
+    setup.py
