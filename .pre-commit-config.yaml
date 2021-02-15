@@ -1,3 +1,5 @@
+ci:
+  skip: [pylint, mypy]
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: 6e2418c5521b7d606e72914dced3253f9ace1205  # frozen: v3.4.0
