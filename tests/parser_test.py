@@ -924,6 +924,12 @@ def test_userhost_split(data):
     assert not atoms
 
 
+def test_message_tag_repr():
+    """Test repr(MessageTag)"""
+    m = MessageTag("foo", "bar")
+    assert repr(m) == "MessageTag(name='foo', value='bar')"
+
+
 @pytest.mark.parametrize("data", parser_tests.data.msg_join["tests"])
 def test_msg_join(data):
     """
