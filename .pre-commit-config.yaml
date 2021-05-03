@@ -30,7 +30,7 @@ repos:
     args:
     - --remove
 - repo: https://github.com/psf/black
-  rev: e66be67b9b6811913470f70c28b4d50f94d05b22  # frozen: 20.8b1
+  rev: b39999da7f451c285befac217f1f9a685774b34d  # frozen: 21.4b2
   hooks:
   - id: black
 - repo: https://github.com/pycqa/isort
