@@ -4,5 +4,5 @@ coverage==5.5
 irc-parser-tests==0.0.4
 mypy==0.812
 pylint==2.6.0
-pytest-cov==2.11.1
+pytest-cov==3.0.0
 pytest==6.2.2
