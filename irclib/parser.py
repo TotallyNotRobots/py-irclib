@@ -20,6 +20,7 @@ from typing import (
     Union,
     cast,
 )
+import datetime
 
 from irclib.errors import ParseError
 
@@ -67,6 +68,15 @@ TAG_VALUE_UNESCAPES = {
 }
 
 SelfT = TypeVar("SelfT")
+
+
+def parse_server_time(value: Optional[str]) -> datetime.datetime:
+    if value:
+        ts = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%fZ')
+    else:
+        ts = datetime.datetime.utcnow()
+
+    return ts.replace(tzinfo=datetime.timezone.utc)
 
 
 class Parseable(metaclass=ABCMeta):
@@ -581,6 +591,16 @@ class Message(Parseable):
         self._prefix = _parse_prefix(prefix)
         self._command = command
         self._parameters = _parse_params(parameters)
+
+        self.time = parse_server_time(self.get_tag_value('time'))
+        self.message_id = self.get_tag_value('msgid')
+        self.batch_id = self.get_tag_value('batch')
+
+    def get_tag_value(self, name):
+        if self.tags and name in self.tags:
+            return self.tags[name].value
+
+        return None
 
     @property
     def tags(self) -> MsgTagList:
