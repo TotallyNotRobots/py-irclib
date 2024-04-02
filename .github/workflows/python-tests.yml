@@ -35,7 +35,9 @@ jobs:
       env:
         PYTHONDEVMODE: 1
 
-    - uses: codecov/codecov-action@v3
+    - uses: codecov/codecov-action@v4
       with:
         name: "build-${{ matrix.python-version }}"
         fail_ci_if_error: true
+      env:
+        CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
