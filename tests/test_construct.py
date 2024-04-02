@@ -1,6 +1,7 @@
 """
 Test constructing message objects
 """
+
 from irclib.parser import Message
 
 

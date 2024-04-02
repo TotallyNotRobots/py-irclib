@@ -1,4 +1,5 @@
 """Test frozendict util"""
+
 from irclib.util.frozendict import FrozenDict
 
 

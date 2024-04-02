@@ -1,4 +1,5 @@
 """Test IRC string comparisons"""
+
 import parser_tests.data
 import pytest
 

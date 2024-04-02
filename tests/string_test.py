@@ -1,4 +1,5 @@
 """Test IRC string class"""
+
 import pytest
 
 from irclib.util.string import ASCII, RFC1459, String

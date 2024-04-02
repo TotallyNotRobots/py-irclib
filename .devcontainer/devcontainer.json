@@ -6,9 +6,10 @@
     "dockerFile": "./Dockerfile",
     "context": "..",
     "features": {
-        "ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {
+        "ghcr.io/devcontainers-contrib/features/zsh-plugins": {
             "omzPlugins": "https://github.com/zsh-users/zsh-autosuggestions"
-        }
+        },
+        "ghcr.io/devcontainers/features/docker-in-docker": {}
     },
 
     // Features to add to the dev container. More info: https://containers.dev/features.
@@ -18,7 +19,7 @@
     // "forwardPorts": [],
 
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "pip3 install -Ur requirements.txt",
+    "postCreateCommand": "hatch run setup-dev",
     // Configure tool-specific properties.
     // "customizations": {},
 
@@ -31,10 +32,11 @@
                 "ms-python.python",
                 "ms-python.vscode-pylance",
                 "EditorConfig.EditorConfig",
-                "GitHub.vscode-pull-request-github"
+                "GitHub.vscode-pull-request-github",
+                "github.vscode-github-actions"
             ],
             "settings": {
-                "python.pythonPath": "/usr/local/bin/python",
+                "python.pythonPath": "~/.virtualenvs/py-irclib/bin/python",
                 "python.testing.pytestArgs": ["--no-cov"],
                 "terminal.integrated.profiles.linux": {
                     "zsh": {

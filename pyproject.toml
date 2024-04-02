@@ -1,29 +1,103 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "py-irclib"
+dynamic = ["version"]
+description = "A simple library for working with the IRC protocol"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.7"
+authors = [{ name = "linuxdaemon", email = "linuxdaemon.irc@gmail.com" }]
+keywords = ["irc", "irc-parser"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+]
+dependencies = ["attrs>=20.3.0"]
+
+[project.urls]
+Homepage = "https://github.com/TotallyNotRobots/py-irclib"
+
+[tool.hatch.version]
+path = "irclib/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["irclib"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["irclib"]
+
+[tool.hatch.env]
+requires = ["hatch-containers"]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "coverage[toml]>=6.5",
+    "pytest>=6.0",
+    "irc-parser-tests",
+    "pre-commit",
+    "mypy>=1.8",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest"
+test-cov = "coverage run -pm pytest"
+cov-report = ["- coverage combine", "coverage report --show-missing"]
+cov = ["test-cov", "cov-report"]
+cov-all = ["hatch run testall:test-cov", "cov-report"]
+
+setup-pre-commit = "python3 -m pre_commit install --install-hooks"
+setup-dev = ["setup-pre-commit"]
+
+pre-commit = "python3 -m pre_commit run {args:--all}"
+
+[tool.hatch.envs.testall]
+type = "container"
+dependencies = ["coverage[toml]>=6.5", "pytest>=6.0", "irc-parser-tests"]
+
+[[tool.hatch.envs.testall.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
 [tool.isort]
-line_length=80
-multi_line_output=3
-include_trailing_comma=true
-use_parentheses=true
-known_first_party=[]
-float_to_top=true
+profile = "black"
+line_length = 80
+include_trailing_comma = true
+use_parentheses = true
+known_first_party = ["irclib"]
+float_to_top = true
 
 [tool.black]
 line-length = 80
-target-version = ['py36']
+target-version = ["py38"]
 include = '\.pyi?$'
-exclude = '''
-(
-  /(
-      \.eggs         # exclude a few common directories in the
-    | \.git          # root of the project
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | venv
-  )/
-)
-'''
+
+[tool.mypy]
+namespace_packages = true
+python_version = "3.8"
+warn_unused_configs = true
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--doctest-modules"
+testpaths = ["irclib", "tests"]
+filterwarnings = ["error"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    'if __name__ == .__main__.:',
+]
+
+[tool.coverage.run]
+branch = true
+relative_files = true

@@ -1,4 +1,5 @@
 """Test numerics util"""
+
 from irclib.util import numerics
 
 

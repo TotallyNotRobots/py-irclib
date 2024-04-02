@@ -1,6 +1,7 @@
 """
 IRC string comparison utilities
 """
+
 import re
 
 __all__ = ("match_mask",)

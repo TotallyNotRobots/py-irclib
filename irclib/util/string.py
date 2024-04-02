@@ -1,6 +1,7 @@
 """
 IRC string utils
 """
+
 import operator
 import string
 from typing import (
@@ -11,7 +12,9 @@ from typing import (
     Mapping,
     NamedTuple,
     Optional,
+    Protocol,
     Sequence,
+    SupportsIndex,
     Tuple,
     Union,
 )
@@ -29,12 +32,12 @@ class Casemap(NamedTuple):
     upper: str
 
     @property
-    def lower_table(self) -> Dict[int, Optional[int]]:
+    def lower_table(self) -> Dict[int, int]:
         """The lower->upper translation table"""
         return str.maketrans(self.lower, self.upper)
 
     @property
-    def upper_table(self) -> Dict[int, Optional[int]]:
+    def upper_table(self) -> Dict[int, int]:
         """The upper->lower table"""
         return str.maketrans(self.upper, self.lower)
 
@@ -49,9 +52,10 @@ ASCII = Casemap(
     "".join(map(chr, range(65, 91))), "".join(map(chr, range(97, 123)))
 )
 
-TranslateArg = Union[
-    Mapping[int, Union[int, str, None]], Sequence[Union[int, str, None]]
-]
+
+class TranslateTable(Protocol):
+    def __getitem__(self, item: int) -> Union[int, str, None]:
+        raise NotImplementedError
 
 
 class String(str):
@@ -106,12 +110,12 @@ class String(str):
     def __contains__(self, item: Any) -> bool:
         return self._wrap(item).casefold() in str(self.casefold())
 
-    def __getitem__(self, item: Union[int, slice]) -> "String":
+    def __getitem__(self, item: Union[SupportsIndex, slice]) -> "String":
         return self._wrap(super().__getitem__(item))
 
     def translate(
         self,
-        table: TranslateArg,
+        table: TranslateTable,
     ) -> "String":
         return self._wrap(super().translate(table))
 
@@ -147,7 +151,10 @@ class String(str):
         return self._upper
 
     def count(
-        self, sub: str, start: Optional[int] = None, end: Optional[int] = None
+        self,
+        sub: str,
+        start: Optional[SupportsIndex] = None,
+        end: Optional[SupportsIndex] = None,
     ) -> int:
         return str(self.casefold()).count(
             self._wrap(sub).casefold(), start, end
@@ -156,8 +163,8 @@ class String(str):
     def startswith(
         self,
         prefix: Union[str, Tuple[str, ...]],
-        start: Optional[int] = None,
-        end: Optional[int] = None,
+        start: Optional[SupportsIndex] = None,
+        end: Optional[SupportsIndex] = None,
     ) -> bool:
         prefix_list: Tuple[str, ...]
         if isinstance(prefix, str):
@@ -172,8 +179,8 @@ class String(str):
     def endswith(
         self,
         suffix: Union[str, Tuple[str, ...]],
-        start: Optional[int] = None,
-        end: Optional[int] = None,
+        start: Optional[SupportsIndex] = None,
+        end: Optional[SupportsIndex] = None,
     ) -> bool:
         suffix_list: Tuple[str, ...]
         if isinstance(suffix, str):
@@ -186,26 +193,38 @@ class String(str):
         return str(self.casefold()).endswith(mapped_list, start, end)
 
     def find(
-        self, sub: str, start: Optional[int] = None, end: Optional[int] = None
+        self,
+        sub: str,
+        start: Optional[SupportsIndex] = None,
+        end: Optional[SupportsIndex] = None,
     ) -> int:
         return str(self.casefold()).find(self._wrap(sub).casefold(), start, end)
 
     def rfind(
-        self, sub: str, start: Optional[int] = None, end: Optional[int] = None
+        self,
+        sub: str,
+        start: Optional[SupportsIndex] = None,
+        end: Optional[SupportsIndex] = None,
     ) -> int:
         return str(self.casefold()).rfind(
             self._wrap(sub).casefold(), start, end
         )
 
     def index(
-        self, sub: str, start: Optional[int] = None, end: Optional[int] = None
+        self,
+        sub: str,
+        start: Optional[SupportsIndex] = None,
+        end: Optional[SupportsIndex] = None,
     ) -> int:
         return str(self.casefold()).index(
             self._wrap(sub).casefold(), start, end
         )
 
     def rindex(
-        self, sub: str, start: Optional[int] = None, end: Optional[int] = None
+        self,
+        sub: str,
+        start: Optional[SupportsIndex] = None,
+        end: Optional[SupportsIndex] = None,
     ) -> int:
         return str(self.casefold()).rindex(
             self._wrap(sub).casefold(), start, end
@@ -226,7 +245,7 @@ class String(str):
         return self[:pos], self[pos : pos + len(sep)], self[pos + len(sep) :]
 
     def replace(
-        self, old: str, new: str, count: Optional[int] = -1
+        self, old: str, new: str, count: SupportsIndex = -1
     ) -> "String":
         raise NotImplementedError
 
@@ -270,11 +289,13 @@ class String(str):
     def title(self) -> str:
         raise NotImplementedError
 
-    def split(self, sep: Optional[str] = None, maxsplit: int = -1) -> List[str]:
+    def split(
+        self, sep: Optional[str] = None, maxsplit: SupportsIndex = -1
+    ) -> List[str]:
         raise NotImplementedError
 
     def rsplit(
-        self, sep: Optional[str] = None, maxsplit: int = -1
+        self, sep: Optional[str] = None, maxsplit: SupportsIndex = -1
     ) -> List[str]:
         raise NotImplementedError
 

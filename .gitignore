@@ -193,3 +193,8 @@ Session.vim
 .netrwhist
 # Auto-generated tag files
 tags
+
+.pytest_cache/
+.ruff_cache/
+
+.coverage.*

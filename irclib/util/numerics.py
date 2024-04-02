@@ -1,11 +1,16 @@
 """IRC numeric mapping"""
+
 from collections import namedtuple
+from dataclasses import dataclass
 from typing import Iterator, Mapping
 
 __all__ = ("Numeric", "numerics")
 
 
-Numeric = namedtuple("Numeric", "name numeric")
+@dataclass
+class Numeric:
+    name: str
+    numeric: int
 
 
 class NumericsDict(Mapping[str, Numeric]):

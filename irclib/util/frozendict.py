@@ -1,4 +1,5 @@
 """Frozen Dict"""
+
 from typing import (
     Any,
     Dict,

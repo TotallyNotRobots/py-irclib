@@ -1,4 +1,5 @@
 """IRC command data and utilities"""
+
 from typing import Iterator, List, Mapping, Optional, cast
 
 import attr

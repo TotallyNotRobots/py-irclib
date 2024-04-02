@@ -1,4 +1,5 @@
 """Test commands util"""
+
 import pytest
 
 from irclib.util import commands
