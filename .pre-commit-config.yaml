@@ -1,55 +1,72 @@
 ci:
   skip: [pylint, mypy]
 repos:
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: c4a0b883114b00d8d76b479c820ce7950211c99b  # frozen: v4.5.0
-  hooks:
-  - id: trailing-whitespace
-    args: ['--markdown-linebreak-ext=md,markdown']
-  - id: end-of-file-fixer
-  - id: check-yaml
-  - id: check-added-large-files
-  - id: check-ast
-  - id: check-byte-order-marker
-  - id: check-merge-conflict
-  - id: debug-statements
-  - id: detect-private-key
-  - id: check-builtin-literals
-  - id: check-case-conflict
-  - id: check-docstring-first
-  - id: check-executables-have-shebangs
-  - id: check-json
-    exclude: '^\.(vscode|devcontainer)/'
-  - id: pretty-format-json
-    args:
-    - --indent
-    - '4'
-    - --autofix
-    - --no-sort-keys
-    exclude: '^\.(vscode|devcontainer)/'
-  - id: check-toml
-  - id: fix-encoding-pragma
-    args:
-    - --remove
-- repo: https://github.com/psf/black
-  rev: 552baf822992936134cbd31a38f69c8cfe7c0f05  # frozen: 24.3.0
-  hooks:
-  - id: black
-- repo: https://github.com/pycqa/isort
-  rev: c235f5e450b4b84e58d114ed4c589cbf454175a3  # frozen: 5.13.2
-  hooks:
-  - id: isort
-- repo: https://github.com/pre-commit/pygrep-hooks
-  rev: 3a6eb0fadf60b3cccfd80bad9dbb6fae7e47b316  # frozen: v1.10.0
-  hooks:
-  - id: python-no-eval
-  - id: python-no-log-warn
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: c4a0b883114b00d8d76b479c820ce7950211c99b # frozen: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        args: ["--markdown-linebreak-ext=md,markdown"]
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-ast
+      - id: check-byte-order-marker
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: detect-private-key
+      - id: check-builtin-literals
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-json
+        exclude: '^\.(vscode|devcontainer)/'
+      - id: pretty-format-json
+        args:
+          - --indent
+          - "4"
+          - --autofix
+          - --no-sort-keys
+        exclude: '^\.(vscode|devcontainer)/'
+      - id: check-toml
+      - id: fix-encoding-pragma
+        args:
+          - --remove
+  - repo: https://github.com/psf/black
+    rev: 552baf822992936134cbd31a38f69c8cfe7c0f05 # frozen: 24.3.0
+    hooks:
+      - id: black
+  - repo: https://github.com/pycqa/isort
+    rev: c235f5e450b4b84e58d114ed4c589cbf454175a3 # frozen: 5.13.2
+    hooks:
+      - id: isort
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: 3a6eb0fadf60b3cccfd80bad9dbb6fae7e47b316 # frozen: v1.10.0
+    hooks:
+      - id: python-no-eval
+      - id: python-no-log-warn
 
-- repo: local
-  hooks:
-  - id: mypy
-    name: mypy
-    entry: hatch run python3 -m mypy
-    language: system
-    types: [python]
-    exclude: tests/.*
+  - repo: https://github.com/ikamensh/flynt/
+    rev: "651c822fdcf45fffcf9743dc755085f32acb65e3" # frozen: 1.0.1
+    hooks:
+      - id: flynt
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: 12af25eb252deaaecb6b259df40d01f42e716dc3 # frozen: v3.15.2
+    hooks:
+      - id: pyupgrade
+        args:
+          - "--py38-plus"
+
+  - repo: https://github.com/MarcoGorelli/auto-walrus
+    rev: e95a3f5b9cd6a6808b803aef0c68a24c35b5891c # frozen: v0.2.2
+    hooks:
+      - id: auto-walrus
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: hatch run python3 -m mypy
+        language: system
+        types: [python]
+        exclude: tests/.*

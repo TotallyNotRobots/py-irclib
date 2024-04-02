@@ -3,18 +3,18 @@
 from irclib.util import numerics
 
 
-def test_lookup():
+def test_lookup() -> None:
     """Test looking up a numeric"""
     n = numerics.numerics["001"]
     assert n is numerics.numerics.from_int(1)
     assert n is numerics.numerics.from_name("RPL_WELCOME")
 
 
-def test_iter():
+def test_iter() -> None:
     """Test iterating the numerics list"""
-    assert list(numerics.numerics)[0] == "001"
+    assert next(iter(numerics.numerics)) == "001"
 
 
-def test_len():
+def test_len() -> None:
     """Test checking the length of the numerics list"""
     assert len(numerics.numerics) > 0

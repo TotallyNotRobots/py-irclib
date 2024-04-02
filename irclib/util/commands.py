@@ -52,7 +52,7 @@ class Command:
 class LookupDict(Mapping[str, Command]):
     """Command lookup dictionary"""
 
-    def __init__(self, *commands: Command):
+    def __init__(self, *commands: Command) -> None:
         for command in commands:
             setattr(self, command.name.lower(), command)
             setattr(self, command.name.upper(), command)

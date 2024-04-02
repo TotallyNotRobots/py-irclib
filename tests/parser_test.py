@@ -1,5 +1,7 @@
 """Test IRC parser"""
 
+from typing import Dict, List, Optional, Tuple, Type, TypedDict
+
 import parser_tests.data
 import pytest
 
@@ -9,13 +11,42 @@ from irclib.parser import (
     Message,
     MessageTag,
     ParamList,
+    Parseable,
     Prefix,
     TagList,
 )
 from irclib.util.string import ASCII, String
 
 
-def test_line():
+class MsgAtoms(TypedDict):
+    tags: Dict[str, str]
+    source: str
+    verb: str
+    params: List[str]
+
+
+class MsgSplitCase(TypedDict):
+    input: str
+    atoms: MsgAtoms
+
+
+class UserHostAtoms(TypedDict):
+    nick: str
+    user: str
+    host: str
+
+
+class UserHostSplitCase(TypedDict):
+    source: str
+    atoms: UserHostAtoms
+
+
+class MsgJoinCase(TypedDict):
+    atoms: MsgAtoms
+    matches: List[str]
+
+
+def test_line() -> None:
     """Test parsing a single IRC message"""
     assert Message.parse("COMMAND") == "COMMAND"
     assert Message.parse("command") == "COMMAND"
@@ -28,6 +59,7 @@ def test_line():
         r"@test=data;test1=more\sdata :nick!user@host COMMAND arg1 arg2 :trailing text"
     )
 
+    assert msg2.prefix
     assert msg2.prefix.host == "host"
 
 
@@ -35,42 +67,33 @@ class TestCap:
     """Test Cap class"""
 
     @pytest.mark.parametrize(
-        "name,value,expected",
+        ("name", "value", "expected"),
         [
             ("capname", "somevalue", "capname=somevalue"),
             ("capname", None, "capname"),
         ],
     )
-    def test_str(self, name, value, expected):
+    def test_str(self, name: str, value: Optional[str], expected: str) -> None:
         """Test string conversion"""
         c = Cap(name, value)
         assert str(c) == expected
 
-    @pytest.mark.parametrize(
-        "name,value",
-        [
-            ("a", "b"),
-            ("foo", "bar"),
-        ],
-    )
-    def test_eq(self, name, value):
+    @pytest.mark.parametrize(("name", "value"), [("a", "b"), ("foo", "bar")])
+    def test_eq(self, name: str, value: str) -> None:
         """Test equals"""
         assert Cap(name, value) == Cap(name, value)
 
     @pytest.mark.parametrize(
-        "name,value,string",
-        [
-            ("a", "b", "a=b"),
-            ("foo", "bar", "foo=bar"),
-        ],
+        ("name", "value", "string"),
+        [("a", "b", "a=b"), ("foo", "bar", "foo=bar")],
     )
-    def test_eq_str(self, name, value, string):
+    def test_eq_str(self, name: str, value: str, string: str) -> None:
         """Test equals string"""
         assert Cap(name, value) == string
         assert string == Cap(name, value)
 
     @pytest.mark.parametrize(
-        "name,value,other_name,other_value",
+        ("name", "value", "other_name", "other_value"),
         [
             ("a", "b", "c", "b"),
             ("a", "b", "a", "c"),
@@ -84,13 +107,19 @@ class TestCap:
             ("foo", None, "foo", "zing"),
         ],
     )
-    def test_ne(self, name, value, other_name, other_value):
+    def test_ne(
+        self,
+        name: str,
+        value: Optional[str],
+        other_name: str,
+        other_value: Optional[str],
+    ) -> None:
         """Test not-equals"""
         assert Cap(name, value) != Cap(other_name, other_value)
         assert Cap(other_name, other_value) != Cap(name, value)
 
     @pytest.mark.parametrize(
-        "name,value,string",
+        ("name", "value", "string"),
         [
             ("a", "b", "c=b"),
             ("a", "b", "a=c"),
@@ -103,18 +132,13 @@ class TestCap:
             ("foo", None, "baz"),
         ],
     )
-    def test_ne_str(self, name, value, string):
+    def test_ne_str(self, name: str, value: Optional[str], string: str) -> None:
         """Test not-equals string"""
         assert Cap(name, value) != string
         assert string != Cap(name, value)
 
-    @pytest.mark.parametrize(
-        "obj,other",
-        [
-            (Cap("foo"), 1),
-        ],
-    )
-    def test_no_cmp(self, obj, other):
+    @pytest.mark.parametrize(("obj", "other"), [(Cap("foo"), 1)])
+    def test_no_cmp(self, obj: Cap, other: object) -> None:
         """Test not-equals"""
         assert obj != other
         assert other != obj
@@ -123,16 +147,10 @@ class TestCap:
         assert not other == obj
 
     @pytest.mark.parametrize(
-        "text,name,value",
-        [
-            (
-                "vendor.example.org/cap-name",
-                "vendor.example.org/cap-name",
-                None,
-            ),
-        ],
+        ("text", "name", "value"),
+        [("vendor.example.org/cap-name", "vendor.example.org/cap-name", None)],
     )
-    def test_parse(self, text, name, value):
+    def test_parse(self, text: str, name: str, value: Optional[str]) -> None:
         """Test parsing string"""
         cap = Cap.parse(text)
         assert cap.name == name
@@ -143,7 +161,7 @@ class TestCapList:
     """Test parsing a list of CAPs"""
 
     @pytest.mark.parametrize(
-        "text,expected",
+        ("text", "expected"),
         [
             (
                 "blah blah-blah cap-1 test-cap=value-data",
@@ -181,13 +199,12 @@ class TestCapList:
                     ("test-cap", "value-data"),
                 ),
             ),
-            (
-                "",
-                (),
-            ),
+            ("", ()),
         ],
     )
-    def test_parse(self, text, expected):
+    def test_parse(
+        self, text: str, expected: Tuple[Tuple[str, Optional[str]], ...]
+    ) -> None:
         """Test string parsing"""
         parsed = CapList.parse(text)
         assert len(parsed) == len(expected)
@@ -196,19 +213,13 @@ class TestCapList:
             assert actual.value == value
 
     @pytest.mark.parametrize("caps", [[], [Cap("a"), Cap("b", "c")]])
-    def test_eq_list(self, caps):
+    def test_eq_list(self, caps: List[Cap]) -> None:
         """Test equals list"""
         assert CapList(caps) == caps
         assert caps == CapList(caps)
 
-    @pytest.mark.parametrize(
-        "caps",
-        [
-            [],
-            [Cap("a"), Cap("b", "c")],
-        ],
-    )
-    def test_ne_list(self, caps):
+    @pytest.mark.parametrize("caps", [[], [Cap("a"), Cap("b", "c")]])
+    def test_ne_list(self, caps: List[Cap]) -> None:
         """Test not-equals list"""
         b = CapList(caps) != caps
         assert not b
@@ -216,27 +227,27 @@ class TestCapList:
         assert not b1
 
     @pytest.mark.parametrize(
-        "caps,text",
+        ("caps", "text"),
         [
             ([], ""),
             ([Cap("a"), Cap("b", "c")], "a b=c"),
             ([Cap("a"), Cap("b", "c")], "a b=c "),
         ],
     )
-    def test_eq_str(self, caps, text):
+    def test_eq_str(self, caps: List[Cap], text: str) -> None:
         """Test equals strings"""
         assert CapList(caps) == text
         assert text == CapList(caps)
 
     @pytest.mark.parametrize(
-        "caps,text",
+        ("caps", "text"),
         [
             ([], ""),
             ([Cap("a"), Cap("b", "c")], "a b=c"),
             ([Cap("a"), Cap("b", "c")], "a b=c "),
         ],
     )
-    def test_ne_str(self, caps, text):
+    def test_ne_str(self, caps: List[Cap], text: str) -> None:
         """Test not-equals strings"""
         b = CapList(caps) != text
         assert not b
@@ -244,13 +255,9 @@ class TestCapList:
         assert not b1
 
     @pytest.mark.parametrize(
-        "obj,other",
-        [
-            (CapList(), None),
-            (CapList(), 0),
-        ],
+        ("obj", "other"), [(CapList(), None), (CapList(), 0)]
     )
-    def test_no_cmp(self, obj, other):
+    def test_no_cmp(self, obj: CapList, other: object) -> None:
         """Test not-equals"""
         assert obj != other
         assert other != obj
@@ -259,14 +266,14 @@ class TestCapList:
         assert not other == obj
 
     @pytest.mark.parametrize(
-        "obj,text",
+        ("obj", "text"),
         [
             (CapList([Cap("foo")]), "foo"),
             (CapList([Cap("foo"), Cap("bar")]), "foo bar"),
             (CapList([Cap("foo"), Cap("bar=baz")]), "foo bar=baz"),
         ],
     )
-    def test_str(self, obj, text):
+    def test_str(self, obj: CapList, text: str) -> None:
         """Test string conversion"""
         assert str(obj) == text
         assert text == str(obj)
@@ -276,7 +283,7 @@ class TestMessageTag:
     """Test parsing a single message tag"""
 
     @pytest.mark.parametrize(
-        "text,name,value",
+        ("text", "name", "value"),
         [
             ("a=b", "a", "b"),
             ("test/blah=", "test/blah", ""),
@@ -286,55 +293,37 @@ class TestMessageTag:
             ("blah=\\", "blah", ""),
         ],
     )
-    def test_parse(self, text, name, value):
+    def test_parse(self, text: str, name: str, value: Optional[str]) -> None:
         """Test parsing a string"""
         tag = MessageTag.parse(text)
         assert tag.name == name
         assert tag.value == value
 
-    @pytest.mark.parametrize(
-        "name,value",
-        [
-            ("a", None),
-            ("a", "b"),
-        ],
-    )
-    def test_eq(self, name, value):
+    @pytest.mark.parametrize(("name", "value"), [("a", None), ("a", "b")])
+    def test_eq(self, name: str, value: Optional[str]) -> None:
         """Test equals"""
         assert MessageTag(name, value) == MessageTag(name, value)
 
-    @pytest.mark.parametrize(
-        "name,value",
-        [
-            ("a", None),
-            ("a", "b"),
-        ],
-    )
-    def test_ne(self, name, value):
+    @pytest.mark.parametrize(("name", "value"), [("a", None), ("a", "b")])
+    def test_ne(self, name: str, value: Optional[str]) -> None:
         """Test not-equals"""
         b = MessageTag(name, value) != MessageTag(name, value)
         assert not b
 
     @pytest.mark.parametrize(
-        "name,value,text",
-        [
-            ("foo", None, "foo"),
-            ("foo", "bar", "foo=bar"),
-        ],
+        ("name", "value", "text"),
+        [("foo", None, "foo"), ("foo", "bar", "foo=bar")],
     )
-    def test_eq_str(self, name, value, text):
+    def test_eq_str(self, name: str, value: Optional[str], text: str) -> None:
         """Test equals string"""
         assert MessageTag(name, value) == text
         assert text == MessageTag(name, value)
 
     @pytest.mark.parametrize(
-        "name,value,text",
-        [
-            ("foo", None, "foo"),
-            ("foo", "bar", "foo=bar"),
-        ],
+        ("name", "value", "text"),
+        [("foo", None, "foo"), ("foo", "bar", "foo=bar")],
     )
-    def test_ne_str(self, name, value, text):
+    def test_ne_str(self, name: str, value: Optional[str], text: str) -> None:
         """Test not-equals string"""
         b = MessageTag(name, value) != text
         assert not b
@@ -342,13 +331,9 @@ class TestMessageTag:
         assert not b1
 
     @pytest.mark.parametrize(
-        "obj,other",
-        [
-            (MessageTag(""), None),
-            (MessageTag(""), 1),
-        ],
+        ("obj", "other"), [(MessageTag(""), None), (MessageTag(""), 1)]
     )
-    def test_no_cmp(self, obj, other):
+    def test_no_cmp(self, obj: MessageTag, other: object) -> None:
         """Test not-equals other types"""
         assert obj != other
         assert other != obj
@@ -361,7 +346,7 @@ class TestTagList:
     """Test parsing a tag list"""
 
     @pytest.mark.parametrize(
-        "text,tags",
+        ("text", "tags"),
         [
             ("a;", [("a", "")]),
             ("a=1;", [("a", "1")]),
@@ -372,7 +357,7 @@ class TestTagList:
             (r"a=ab\r\s\n\:\\;b=abc", [("a", "ab\r \n;\\"), ("b", "abc")]),
         ],
     )
-    def test_parse(self, text, tags):
+    def test_parse(self, text: str, tags: List[Tuple[str, str]]) -> None:
         """Test parsing from string"""
         tag_list = TagList.parse(text)
 
@@ -384,52 +369,32 @@ class TestTagList:
             assert tag.value == value
 
     @pytest.mark.parametrize(
-        "tags",
-        [
-            [],
-            [MessageTag("a")],
-            [MessageTag("b", "c")],
-        ],
+        "tags", [[], [MessageTag("a")], [MessageTag("b", "c")]]
     )
-    def test_eq(self, tags):
+    def test_eq(self, tags: List[MessageTag]) -> None:
         """Test equals"""
         assert TagList(tags) == TagList(tags)
 
     @pytest.mark.parametrize(
-        "tags",
-        [
-            [],
-            [MessageTag("a")],
-            [MessageTag("b", "c")],
-        ],
+        "tags", [[], [MessageTag("a")], [MessageTag("b", "c")]]
     )
-    def test_ne(self, tags):
+    def test_ne(self, tags: List[MessageTag]) -> None:
         """Test not-equals"""
         b = TagList(tags) != TagList(tags)
         assert not b
 
     @pytest.mark.parametrize(
-        "tags",
-        [
-            [],
-            [MessageTag("a")],
-            [MessageTag("b", "c")],
-        ],
+        "tags", [[], [MessageTag("a")], [MessageTag("b", "c")]]
     )
-    def test_eq_list(self, tags):
+    def test_eq_list(self, tags: List[MessageTag]) -> None:
         """Test equals list"""
         assert TagList(tags) == tags
         assert tags == TagList(tags)
 
     @pytest.mark.parametrize(
-        "tags",
-        [
-            [],
-            [MessageTag("a")],
-            [MessageTag("b", "c")],
-        ],
+        "tags", [[], [MessageTag("a")], [MessageTag("b", "c")]]
     )
-    def test_ne_list(self, tags):
+    def test_ne_list(self, tags: List[MessageTag]) -> None:
         """Test not-equals list"""
         b = TagList(tags) != tags
         assert not b
@@ -437,27 +402,31 @@ class TestTagList:
         assert not b1
 
     @pytest.mark.parametrize(
-        "obj,other",
+        ("obj", "other"),
         [
             (TagList(), {}),
             (TagList([MessageTag("a")]), {"a": None}),
             (TagList([MessageTag("b", "c")]), {"b": "c"}),
         ],
     )
-    def test_eq_dict(self, obj, other):
+    def test_eq_dict(
+        self, obj: TagList, other: Dict[str, Optional[str]]
+    ) -> None:
         """Test equals dict"""
         assert obj == other
         assert other == obj
 
     @pytest.mark.parametrize(
-        "obj,other",
+        ("obj", "other"),
         [
             (TagList(), {}),
             (TagList([MessageTag("a")]), {"a": None}),
             (TagList([MessageTag("b", "c")]), {"b": "c"}),
         ],
     )
-    def test_ne_dict(self, obj, other):
+    def test_ne_dict(
+        self, obj: TagList, other: Dict[str, Optional[str]]
+    ) -> None:
         """Test not-equals dict"""
         b = obj != other
         assert not b
@@ -465,27 +434,19 @@ class TestTagList:
         assert not b1
 
     @pytest.mark.parametrize(
-        "tags,text",
-        [
-            ([], ""),
-            ([MessageTag("a")], "a"),
-            ([MessageTag("b", "c")], "b=c"),
-        ],
+        ("tags", "text"),
+        [([], ""), ([MessageTag("a")], "a"), ([MessageTag("b", "c")], "b=c")],
     )
-    def test_eq_str(self, tags, text):
+    def test_eq_str(self, tags: List[MessageTag], text: str) -> None:
         """Test equals strings"""
         assert TagList(tags) == text
         assert text == TagList(tags)
 
     @pytest.mark.parametrize(
-        "tags,text",
-        [
-            ([], ""),
-            ([MessageTag("a")], "a"),
-            ([MessageTag("b", "c")], "b=c"),
-        ],
+        ("tags", "text"),
+        [([], ""), ([MessageTag("a")], "a"), ([MessageTag("b", "c")], "b=c")],
     )
-    def test_ne_str(self, tags, text):
+    def test_ne_str(self, tags: List[MessageTag], text: str) -> None:
         """Test not-equals strings"""
         b = TagList(tags) != text
         assert not b
@@ -493,13 +454,9 @@ class TestTagList:
         assert not b1
 
     @pytest.mark.parametrize(
-        "obj,other",
-        [
-            (TagList(), 0),
-            (TagList(), None),
-        ],
+        ("obj", "other"), [(TagList(), 0), (TagList(), None)]
     )
-    def test_no_cmp(self, obj, other):
+    def test_no_cmp(self, obj: TagList, other: object) -> None:
         """Test not-equals other types"""
         assert obj != other
         assert other != obj
@@ -512,7 +469,7 @@ class TestPrefix:
     """Test parsing a prefix"""
 
     @pytest.mark.parametrize(
-        "text,nick,user,host",
+        ("text", "nick", "user", "host"),
         [
             ("", "", "", ""),
             (":", "", "", ""),
@@ -533,7 +490,7 @@ class TestPrefix:
             (":!user@host", "", "user", "host"),
         ],
     )
-    def test_parse(self, text, nick, user, host):
+    def test_parse(self, text: str, nick: str, user: str, host: str) -> None:
         """Test parsing a string"""
         p = Prefix.parse(text)
 
@@ -543,7 +500,7 @@ class TestPrefix:
         assert p.host == host
 
     @pytest.mark.parametrize(
-        "nick,user,host",
+        ("nick", "user", "host"),
         [
             ("nick", None, None),
             ("nick", "user", "host"),
@@ -551,12 +508,14 @@ class TestPrefix:
             ("nick", "user", None),
         ],
     )
-    def test_eq(self, nick, user, host):
+    def test_eq(
+        self, nick: str, user: Optional[str], host: Optional[str]
+    ) -> None:
         """Test equals"""
         assert Prefix(nick, user, host) == Prefix(nick, user, host)
 
     @pytest.mark.parametrize(
-        "nick,user,host",
+        ("nick", "user", "host"),
         [
             ("nick", None, None),
             ("nick", "user", "host"),
@@ -564,13 +523,15 @@ class TestPrefix:
             ("nick", "user", None),
         ],
     )
-    def test_ne(self, nick, user, host):
+    def test_ne(
+        self, nick: str, user: Optional[str], host: Optional[str]
+    ) -> None:
         """Test not-equals"""
         b = Prefix(nick, user, host) != Prefix(nick, user, host)
         assert not b
 
     @pytest.mark.parametrize(
-        "text,nick,user,host",
+        ("text", "nick", "user", "host"),
         [
             ("nick", "nick", None, None),
             ("nick!user@host", "nick", "user", "host"),
@@ -578,13 +539,19 @@ class TestPrefix:
             ("nick!user", "nick", "user", None),
         ],
     )
-    def test_eq_str(self, text, nick, user, host):
+    def test_eq_str(
+        self,
+        text: str,
+        nick: Optional[str],
+        user: Optional[str],
+        host: Optional[str],
+    ) -> None:
         """Test equals string"""
         assert Prefix(nick, user, host) == text
         assert text == Prefix(nick, user, host)
 
     @pytest.mark.parametrize(
-        "text,nick,user,host",
+        ("text", "nick", "user", "host"),
         [
             ("nick", "nick", None, None),
             ("nick!user@host", "nick", "user", "host"),
@@ -592,7 +559,13 @@ class TestPrefix:
             ("nick!user", "nick", "user", None),
         ],
     )
-    def test_ne_str(self, text, nick, user, host):
+    def test_ne_str(
+        self,
+        text: str,
+        nick: Optional[str],
+        user: Optional[str],
+        host: Optional[str],
+    ) -> None:
         """Test not-equals string comparisons"""
         b = Prefix(nick, user, host) != text
         assert not b
@@ -600,14 +573,10 @@ class TestPrefix:
         assert not b1
 
     @pytest.mark.parametrize(
-        "obj,other",
-        [
-            (Prefix(""), 0),
-            (Prefix(""), None),
-            (Prefix(""), ()),
-        ],
+        ("obj", "other"),
+        [(Prefix(""), 0), (Prefix(""), None), (Prefix(""), ())],
     )
-    def test_no_cmp(self, obj, other):
+    def test_no_cmp(self, obj: Prefix, other: object) -> None:
         """Test not-equals"""
         assert obj != other
         assert other != obj
@@ -616,7 +585,7 @@ class TestPrefix:
         assert not other == obj
 
     @pytest.mark.parametrize(
-        "obj,nick,user,host",
+        ("obj", "nick", "user", "host"),
         [
             (Prefix("nick"), "nick", "", ""),
             (Prefix("nick", "user", "host"), "nick", "user", "host"),
@@ -624,13 +593,19 @@ class TestPrefix:
             (Prefix("nick", "user"), "nick", "user", ""),
         ],
     )
-    def test_unpack(self, obj, nick, user, host):
+    def test_unpack(
+        self,
+        obj: Prefix,
+        nick: Optional[str],
+        user: Optional[str],
+        host: Optional[str],
+    ) -> None:
         """Test unpacking Prefix"""
         n, u, h = obj
         assert (n, u, h) == (nick, user, host)
 
     @pytest.mark.parametrize(
-        "nick,user,host",
+        ("nick", "user", "host"),
         [
             ("nick", "", ""),
             ("nick", None, None),
@@ -647,12 +622,14 @@ class TestPrefix:
             (None, None, "host"),
         ],
     )
-    def test_bool(self, nick, user, host):
+    def test_bool(
+        self, nick: Optional[str], user: Optional[str], host: Optional[str]
+    ) -> None:
         """Test cases where bool(Prefix) == True"""
         assert Prefix(nick, user, host)
 
     @pytest.mark.parametrize(
-        "nick,user,host",
+        ("nick", "user", "host"),
         [
             ("", "", ""),
             (None, None, None),
@@ -664,7 +641,9 @@ class TestPrefix:
             (None, "", ""),
         ],
     )
-    def test_bool_false(self, nick, user, host):
+    def test_bool_false(
+        self, nick: Optional[str], user: Optional[str], host: Optional[str]
+    ) -> None:
         """Test cases where bool(Prefix) == False"""
         assert not Prefix(nick, user, host)
 
@@ -673,7 +652,7 @@ class TestParamList:
     """Test parsing a parameter list"""
 
     @pytest.mark.parametrize(
-        "obj,text",
+        ("obj", "text"),
         [
             (ParamList(), ""),
             (ParamList("a"), "a"),
@@ -684,23 +663,15 @@ class TestParamList:
             (ParamList("a", "b", ""), "a b :"),
         ],
     )
-    def test_str(self, obj, text):
+    def test_str(self, obj: ParamList, text: str) -> None:
         """Test string conversion"""
         assert str(obj) == text
 
     @pytest.mark.parametrize(
         "params",
-        [
-            [],
-            [""],
-            ["a"],
-            ["a", "b"],
-            ["a", ":b"],
-            ["a", "b "],
-            ["a", ""],
-        ],
+        [[], [""], ["a"], ["a", "b"], ["a", ":b"], ["a", "b "], ["a", ""]],
     )
-    def test_eq(self, params):
+    def test_eq(self, params: List[str]) -> None:
         """Test equals"""
         assert ParamList(*params) == ParamList(*params)
         assert ParamList(*params) == ParamList.from_list(params)
@@ -708,29 +679,17 @@ class TestParamList:
 
     @pytest.mark.parametrize(
         "params",
-        [
-            [],
-            [""],
-            ["a"],
-            ["a", "b"],
-            ["a", ":b"],
-            ["a", "b "],
-            ["a", ""],
-        ],
+        [[], [""], ["a"], ["a", "b"], ["a", ":b"], ["a", "b "], ["a", ""]],
     )
-    def test_ne(self, params):
+    def test_ne(self, params: List[str]) -> None:
         """Test not-equals"""
         b = ParamList(*params) != ParamList(*params)
         assert not b
 
     @pytest.mark.parametrize(
-        "obj,other",
-        [
-            (ParamList(), 0),
-            (ParamList(), None),
-        ],
+        ("obj", "other"), [(ParamList(), 0), (ParamList(), None)]
     )
-    def test_no_cmp(self, obj, other):
+    def test_no_cmp(self, obj: ParamList, other: object) -> None:
         """Test not-equals"""
         assert obj != other
         assert other != obj
@@ -742,14 +701,14 @@ class TestParamList:
 class TestMessage:
     """Test parsing an entire IRC message"""
 
-    def test_parse_bytes(self):
+    def test_parse_bytes(self) -> None:
         """Test parsing bytes"""
         line = Message.parse(b"COMMAND some params :and stuff")
         assert line.command == "COMMAND"
         assert line.parameters == ["some", "params", "and stuff"]
 
     @pytest.mark.parametrize(
-        "obj,text",
+        ("obj", "text"),
         [
             (Message(None, None, None), ""),
             (Message(None, None, None, None), ""),
@@ -771,31 +730,37 @@ class TestMessage:
             ),
         ],
     )
-    def test_str(self, obj, text):
+    def test_str(self, obj: Message, text: str) -> None:
         """Test string conversion"""
         assert str(obj) == text
 
     @pytest.mark.parametrize(
-        "tags,prefix,command,params",
-        [
-            (None, None, None, None),
-            ("some tag", None, "COMMAND", ["param", ""]),
-        ],
+        ("tags", "prefix", "command", "params"),
+        [(None, None, "", []), ("some tag", None, "COMMAND", ["param", ""])],
     )
-    def test_eq(self, tags, prefix, command, params):
+    def test_eq(
+        self,
+        tags: Optional[str],
+        prefix: Optional[str],
+        command: str,
+        params: List[str],
+    ) -> None:
         """Test equals"""
         assert Message(tags, prefix, command, params) == Message(
             tags, prefix, command, params
         )
 
     @pytest.mark.parametrize(
-        "tags,prefix,command,params",
-        [
-            (None, None, None, None),
-            ("some tag", None, "COMMAND", ["param", ""]),
-        ],
+        ("tags", "prefix", "command", "params"),
+        [(None, None, "", []), ("some tag", None, "COMMAND", ["param", ""])],
     )
-    def test_ne(self, tags, prefix, command, params):
+    def test_ne(
+        self,
+        tags: Optional[str],
+        prefix: Optional[str],
+        command: str,
+        params: List[str],
+    ) -> None:
         """Test not-equals"""
         b = Message(tags, prefix, command, params) != Message(
             tags, prefix, command, params
@@ -803,14 +768,14 @@ class TestMessage:
         assert not b
 
     @pytest.mark.parametrize(
-        "obj,other",
+        ("obj", "other"),
         [
-            (Message(None, None, None), 0),
-            (Message(None, None, None), None),
-            (Message(None, None, None), ()),
+            (Message(None, None, ""), 0),
+            (Message(None, None, ""), None),
+            (Message(None, None, ""), ()),
         ],
     )
-    def test_no_cmp(self, obj, other):
+    def test_no_cmp(self, obj: Message, other: object) -> None:
         """Test Message.__ne__"""
         assert obj != other
         assert other != obj
@@ -818,13 +783,8 @@ class TestMessage:
         assert not obj == other
         assert not other == obj
 
-    @pytest.mark.parametrize(
-        "obj",
-        [
-            Message(None, None, "COMMAND"),
-        ],
-    )
-    def test_bool(self, obj):
+    @pytest.mark.parametrize("obj", [Message(None, None, "COMMAND")])
+    def test_bool(self, obj: Message) -> None:
         """Test the cases where bool(Message) should return True"""
         assert obj
 
@@ -840,12 +800,12 @@ class TestMessage:
             Message(TagList(), Prefix(), "", ParamList()),
         ],
     )
-    def test_bool_false(self, obj):
+    def test_bool_false(self, obj: Message) -> None:
         """Test all the cases where bool(Message) should return False"""
         assert not obj
 
 
-def test_trail():
+def test_trail() -> None:
     """
     Ensure this parser does not have the same
     issue as https://github.com/hexchat/hexchat/issues/2271
@@ -860,7 +820,7 @@ def test_trail():
 
 
 @pytest.mark.parametrize(
-    "parse_type,text",
+    ("parse_type", "text"),
     [
         (MessageTag, "hi"),
         (MessageTag, "hello=world"),
@@ -880,14 +840,14 @@ def test_trail():
         (Message, "command"),
     ],
 )
-def test_comparisons(parse_type, text):
+def test_comparisons(parse_type: Type[Parseable], text: str) -> None:
     """Test comparing parsed objects to strings"""
     assert text == parse_type.parse(text)
     assert not text != parse_type.parse(text)
 
 
 @pytest.mark.parametrize("data", parser_tests.data.msg_split["tests"])
-def test_msg_split(data):
+def test_msg_split(data: MsgSplitCase) -> None:
     """Test splitting a message against the irc-parser-tests data"""
     msg = Message.parse(data["input"])
     atoms = data["atoms"].copy()
@@ -898,67 +858,60 @@ def test_msg_split(data):
     else:
         tags_dict = None
 
-    assert tags_dict == atoms.pop("tags", None)
+    assert tags_dict == atoms.get("tags", None)
 
     prefix = None if msg.prefix is None else str(msg.prefix)
-    assert prefix == atoms.pop("source", None)
+    assert prefix == atoms.get("source", None)
 
     # Commands are case-insensitive
-    assert String(msg.command, ASCII) == atoms.pop("verb", None)
+    assert String(msg.command, ASCII) == atoms.get("verb", None)
 
-    assert list(msg.parameters) == atoms.pop("params", [])
-
-    # Make sure we handled everything
-    assert not atoms
+    assert list(msg.parameters) == atoms.get("params", [])
 
 
 @pytest.mark.parametrize("data", parser_tests.data.userhost_split["tests"])
-def test_userhost_split(data):
-    """Ensure that yser/host parsing passes against the irc-parser-tests data"""
+def test_userhost_split(data: UserHostSplitCase) -> None:
+    """Ensure that user/host parsing passes against the irc-parser-tests data"""
     source = Prefix.parse(data["source"])
     atoms = data["atoms"].copy()
 
-    assert source.nick == atoms.pop("nick", "")
-    assert source.user == atoms.pop("user", "")
-    assert source.host == atoms.pop("host", "")
-
-    assert not atoms
+    assert source.nick == atoms.get("nick", "")
+    assert source.user == atoms.get("user", "")
+    assert source.host == atoms.get("host", "")
 
 
-def test_message_tag_repr():
+def test_message_tag_repr() -> None:
     """Test repr(MessageTag)"""
     m = MessageTag("foo", "bar")
     assert repr(m) == "MessageTag(name='foo', value='bar')"
 
 
 @pytest.mark.parametrize("data", parser_tests.data.msg_join["tests"])
-def test_msg_join(data):
+def test_msg_join(data: MsgJoinCase) -> None:
     """
     Ensure that message building passes all tests from
     the irc-parser-tests library.
     """
     atoms = data["atoms"]
     msg = Message(
-        atoms.pop("tags", None),
-        atoms.pop("source", None),
-        atoms.pop("verb", None),
-        atoms.pop("params", []),
+        atoms.get("tags", None),
+        atoms.get("source", None),
+        atoms.get("verb", None),
+        atoms.get("params", []),
     )
-
-    assert not atoms, "Not all atoms were handled"
 
     matches = data["matches"]
     assert str(msg) in matches
 
 
 @pytest.mark.parametrize(
-    "text,has_trail",
-    (
+    ("text", "has_trail"),
+    [
         ("PRIVMSG #channel :message", True),
         ("PRIVMSG #channel :message text", True),
-    ),
+    ],
 )
-def test_has_trail(text, has_trail):
+def test_has_trail(text: str, has_trail: bool) -> None:
     """Ensure that a message with trailing arguments is recorded as having a tril"""
     msg = Message.parse(text)
     assert msg.parameters.has_trail == has_trail

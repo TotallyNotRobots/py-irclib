@@ -1,9 +1,3 @@
 """IRC utils"""
 
-__all__ = (
-    "commands",
-    "compare",
-    "frozendict",
-    "numerics",
-    "string",
-)
+__all__ = ("commands", "compare", "frozendict", "numerics", "string")

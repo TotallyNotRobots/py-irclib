@@ -3,7 +3,7 @@
 from irclib.util.frozendict import FrozenDict
 
 
-def test_dict():
+def test_dict() -> None:
     """Test basic dict functions"""
     fd = FrozenDict(a=1, b=2)
     assert fd["a"] == 1
@@ -13,7 +13,7 @@ def test_dict():
     assert set(fd.keys()) == {"a", "b"}
 
 
-def test_init_literal():
+def test_init_literal() -> None:
     """Test initializing with a dict literal"""
     fd = FrozenDict({"a": 1, "b": 2})
     assert fd["a"] == 1
@@ -23,7 +23,7 @@ def test_init_literal():
     assert set(fd.keys()) == {"a", "b"}
 
 
-def test_copy():
+def test_copy() -> None:
     """Test dict copy"""
     fd = FrozenDict([("a", 1), ("b", 2)])
     fd1 = fd.copy()
@@ -42,7 +42,7 @@ def test_copy():
     assert fd3["b"] == 2
 
 
-def test_hash():
+def test_hash() -> None:
     """Test dict hashes"""
     fd = FrozenDict(a=1, b=2)
     fd1 = FrozenDict({"a": 1, "b": 2})

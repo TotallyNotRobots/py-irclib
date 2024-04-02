@@ -8,18 +8,20 @@ dynamic = ["version"]
 description = "A simple library for working with the IRC protocol"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 authors = [{ name = "linuxdaemon", email = "linuxdaemon.irc@gmail.com" }]
 keywords = ["irc", "irc-parser"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
-dependencies = ["attrs>=20.3.0"]
+dependencies = ["attrs>=20.3.0", "typing_extensions"]
 
 [project.urls]
 Homepage = "https://github.com/TotallyNotRobots/py-irclib"
@@ -47,7 +49,7 @@ dependencies = [
 
 [tool.hatch.envs.default.scripts]
 test = "pytest"
-test-cov = "coverage run -pm pytest"
+test-cov = ["- coverage erase", "coverage run -pm pytest"]
 cov-report = [
     "- coverage combine",
     "coverage xml",
@@ -81,12 +83,79 @@ line-length = 80
 target-version = ["py38"]
 include = '\.pyi?$'
 
+[tool.ruff]
+line-length = 80
+target-version = 'py38'
+
+[tool.ruff.format]
+docstring-code-format = true
+line-ending = "lf"
+skip-magic-trailing-comma = true
+
+[tool.ruff.lint]
+ignore-init-module-imports = false
+extend-safe-fixes = ["EM101", 'EM102', "TCH001", "SIM117", "SIM108", "ANN201"]
+ignore = [
+    "D",
+    "TRY003", # TODO(aspen): Switch to custom exceptions
+    "ANN101", # Due to be deprecated in ruff
+    "ANN102", # Due to be deprecated in ruff
+    "COM812", # Conflicts with formatter
+    "ISC001", # Conflicts with formatter
+    "EXE002", # pre-commit does it better, works with SMB shares
+    "FA100",
+]
+select = ["ALL"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = [
+    "PLR2004", # Allow "magic values" in tests -aspen
+    "S101",    # Allow asserts in tests
+    "SIM201",  # We need to test weird comparison operators
+    "SIM202",  # We need to test weird comparison operstors
+    "SIM300",  # We need to test both forward and reverse comparisons
+    "FBT001",  # Boolean paramters are fine for test cases
+]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 100
+
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
 [tool.mypy]
 namespace_packages = true
 python_version = "3.8"
 warn_unused_configs = true
 strict = true
+strict_optional = true
 ignore_missing_imports = true
+check_untyped_defs = true
+show_error_codes = true
+warn_unused_ignores = true
+no_implicit_reexport = true
+warn_redundant_casts = true
+strict_equality = true
+disallow_any_generics = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_untyped_decorators = true
+extra_checks = true
+warn_unreachable = true
+warn_return_any = true
+warn_no_return = true
+enable_error_code = [
+  "redundant-self",
+  "redundant-expr",
+  "possibly-undefined",
+  "truthy-bool",
+  "truthy-iterable",
+  "ignore-without-code",
+  "unused-awaitable",
+]
 
 [tool.pytest.ini_options]
 minversion = "6.0"

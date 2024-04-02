@@ -1,6 +1,5 @@
 """IRC numeric mapping"""
 
-from collections import namedtuple
 from dataclasses import dataclass
 from typing import Iterator, Mapping
 

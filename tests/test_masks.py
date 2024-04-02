@@ -1,13 +1,21 @@
 """Test IRC string comparisons"""
 
+from typing import List, TypedDict
+
 import parser_tests.data
 import pytest
 
 from irclib.util.compare import match_mask
 
 
+class MaskCase(TypedDict):
+    mask: str
+    matches: List[str]
+    fails: List[str]
+
+
 @pytest.mark.parametrize("data", parser_tests.data.mask_match["tests"])
-def test_mask_match(data):
+def test_mask_match(data: MaskCase) -> None:
     """Test the mask matching logic"""
     pattern = data["mask"]
 

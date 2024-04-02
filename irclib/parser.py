@@ -7,7 +7,6 @@ Backported from async-irc (https://github.com/snoonetIRC/async-irc.git)
 import re
 from abc import ABCMeta, abstractmethod
 from typing import (
-    Any,
     Dict,
     Iterable,
     Iterator,
@@ -15,11 +14,12 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
-    Type,
     TypeVar,
     Union,
     cast,
 )
+
+from typing_extensions import Self
 
 from irclib.errors import ParseError
 
@@ -78,7 +78,7 @@ class Parseable(metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def parse(cls: Type[SelfT], text: str) -> SelfT:
+    def parse(cls, text: str) -> Self:
         """Parse the object from a string"""
         raise NotImplementedError
 
@@ -104,7 +104,7 @@ class Cap(Parseable):
         """Get data as a tuple of values"""
         return self.name, self.value
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
             return self == self.parse(other)
 
@@ -113,7 +113,7 @@ class Cap(Parseable):
 
         return NotImplemented
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         if isinstance(other, str):
             return self != self.parse(other)
 
@@ -138,7 +138,7 @@ class Cap(Parseable):
 class CapList(Parseable, List[Cap]):
     """Represents a list of CAP entities"""
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
             return self == self.parse(other)
 
@@ -147,7 +147,7 @@ class CapList(Parseable, List[Cap]):
 
         return NotImplemented
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         if isinstance(other, str):
             return self != self.parse(other)
 
@@ -170,10 +170,9 @@ class CapList(Parseable, List[Cap]):
         stripped = text.strip()
 
         caps: Iterable[Cap]
-        if not text:
-            caps = []
-        else:
-            caps = (Cap.parse(s) for s in stripped.split(CAP_SEP))
+        caps = (
+            [] if not text else (Cap.parse(s) for s in stripped.split(CAP_SEP))
+        )
 
         return CapList(caps)
 
@@ -212,7 +211,7 @@ class MessageTag(Parseable):
         escaped = False
         for char in value:
             if escaped:
-                new_value += TAG_VALUE_ESCAPES.get("\\{}".format(char), char)
+                new_value += TAG_VALUE_ESCAPES.get(f"\\{char}", char)
                 escaped = False
             elif char == "\\":
                 escaped = True
@@ -236,13 +235,11 @@ class MessageTag(Parseable):
 
     def __str__(self) -> str:
         if self.value or self._has_value:
-            return "{}{}{}".format(
-                self.name, TAG_VALUE_SEP, self.escape(self.value)
-            )
+            return f"{self.name}{TAG_VALUE_SEP}{self.escape(self.value)}"
 
         return self.name
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
             return self == self.parse(other)
 
@@ -251,7 +248,7 @@ class MessageTag(Parseable):
 
         return NotImplemented
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         if isinstance(other, str):
             return self != self.parse(other)
 
@@ -285,7 +282,7 @@ class TagList(Parseable, Dict[str, MessageTag]):
         return TAGS_SEP.join(map(str, self.values()))
 
     @staticmethod
-    def _cmp_type_map(obj: Any) -> Dict[str, MessageTag]:
+    def _cmp_type_map(obj: object) -> Dict[str, MessageTag]:
         if isinstance(obj, str):
             return TagList.parse(obj)
 
@@ -303,14 +300,14 @@ class TagList(Parseable, Dict[str, MessageTag]):
 
         return NotImplemented
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         obj = self._cmp_type_map(other)
         if obj is NotImplemented:
             return NotImplemented
 
         return dict(self) == dict(obj)
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         obj = self._cmp_type_map(other)
         if obj is NotImplemented:
             return NotImplemented
@@ -397,7 +394,7 @@ class Prefix(Parseable):
     def __bool__(self) -> bool:
         return any(self)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
             return self == self.parse(other)
 
@@ -406,7 +403,7 @@ class Prefix(Parseable):
 
         return NotImplemented
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         if isinstance(other, str):
             return self != self.parse(other)
 
@@ -429,7 +426,8 @@ class Prefix(Parseable):
         match = PREFIX_RE.match(text)
         if not match:  # pragma: no cover
             # This should never trip, we are pretty lenient with prefixes
-            raise ParseError("Invalid IRC prefix format")
+            msg = "Invalid IRC prefix format"
+            raise ParseError(msg)
 
         nick, user, host = match.groups()
         return Prefix(nick, user, host)
@@ -464,7 +462,7 @@ class ParamList(Parseable, List[str]):
 
         return PARAM_SEP.join(self)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
             return self == self.parse(other)
 
@@ -473,7 +471,7 @@ class ParamList(Parseable, List[str]):
 
         return NotImplemented
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         if isinstance(other, str):
             return self != self.parse(other)
 
@@ -522,7 +520,7 @@ class ParamList(Parseable, List[str]):
 
 
 def _parse_tags(
-    tags: Union[TagList, Dict[str, str], str, None, List[str]]
+    tags: Union[TagList, Dict[str, str], str, None, List[str]],
 ) -> MsgTagList:
     if isinstance(tags, TagList):
         return tags
@@ -553,7 +551,7 @@ def _parse_prefix(prefix: Union[Prefix, str, None, Iterable[str]]) -> MsgPrefix:
 
 
 def _parse_params(
-    parameters: Tuple[Union[str, List[str], ParamList], ...]
+    parameters: Tuple[Union[str, List[str], ParamList], ...],
 ) -> ParamList:
     if len(parameters) == 1 and not isinstance(parameters[0], str):
         # This seems to be a list
@@ -621,7 +619,7 @@ class Message(Parseable):
     def __bool__(self) -> bool:
         return any(self.as_tuple())
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, (str, bytes)):
             return self == Message.parse(other)
 
@@ -630,7 +628,7 @@ class Message(Parseable):
 
         return NotImplemented
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         if isinstance(other, (str, bytes)):
             return self != Message.parse(other)
 

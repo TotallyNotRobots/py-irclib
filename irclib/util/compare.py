@@ -6,10 +6,7 @@ import re
 
 __all__ = ("match_mask",)
 
-GLOB_MAP = {
-    "?": ".",
-    "*": ".*",
-}
+GLOB_MAP = {"?": ".", "*": ".*"}
 
 
 def match_mask(mask: str, pattern: str) -> bool:
@@ -20,5 +17,5 @@ def match_mask(mask: str, pattern: str) -> bool:
     for c in pattern:
         re_pattern += GLOB_MAP.get(c, re.escape(c))
 
-    regex = re.compile("^{}$".format(re_pattern))
+    regex = re.compile(f"^{re_pattern}$")
     return bool(regex.match(mask))

@@ -33,7 +33,8 @@
                 "ms-python.vscode-pylance",
                 "EditorConfig.EditorConfig",
                 "GitHub.vscode-pull-request-github",
-                "github.vscode-github-actions"
+                "github.vscode-github-actions",
+                "redhat.vscode-yaml"
             ],
             "settings": {
                 "python.pythonPath": "~/.virtualenvs/py-irclib/bin/python",

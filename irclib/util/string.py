@@ -5,15 +5,12 @@ IRC string utils
 import operator
 import string
 from typing import (
-    Any,
     Callable,
     Dict,
     List,
-    Mapping,
     NamedTuple,
     Optional,
     Protocol,
-    Sequence,
     SupportsIndex,
     Tuple,
     Union,
@@ -54,40 +51,40 @@ ASCII = Casemap(
 
 
 class TranslateTable(Protocol):
-    def __getitem__(self, item: int) -> Union[int, str, None]:
+    def __getitem__(self, item: int, /) -> Union[str, int, None]:
         raise NotImplementedError
 
 
 class String(str):
     """Case-insensitive string"""
 
+    __slots__ = ("_casemap",)
+
+    _casemap: Casemap
+
     def _wrap(self, value: str) -> "String":
-        return self.__class__(value, self.casemap)
+        return self.__class__.__new__(self.__class__, value, self.casemap)
 
     def __new__(
         cls, value: str = "", casemap: Optional[Casemap] = None
     ) -> "String":
         o = str.__new__(cls, value)
-        o._casemap = casemap or ASCII
+        o._casemap = casemap or ASCII  # noqa: SLF001
         return o
-
-    def __init__(
-        self, value: str = "", casemap: Optional[Casemap] = None
-    ) -> None:
-        super().__init__()
-        self.__initial = value
-        self._casemap = casemap or ASCII
 
     def __hash__(self) -> int:
         return hash(str(self.lower()))
 
     def __internal_cmp(
-        self, other: str, cmp: Callable[[str, str], bool]
+        self, other: object, cmp: Callable[[str, str], bool]
     ) -> bool:
         if isinstance(other, String):
             return cmp(str(self.casefold()), str(other.casefold()))
 
-        return cmp(self, self._wrap(other))
+        if isinstance(other, str):
+            return cmp(self, self._wrap(other))
+
+        return NotImplemented
 
     def __lt__(self, other: str) -> bool:
         return self.__internal_cmp(other, operator.lt)
@@ -95,10 +92,10 @@ class String(str):
     def __le__(self, other: str) -> bool:
         return self.__internal_cmp(other, operator.le)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         return self.__internal_cmp(other, operator.eq)
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         return self.__internal_cmp(other, operator.ne)
 
     def __gt__(self, other: str) -> bool:
@@ -107,16 +104,16 @@ class String(str):
     def __ge__(self, other: str) -> bool:
         return self.__internal_cmp(other, operator.ge)
 
-    def __contains__(self, item: Any) -> bool:
+    def __contains__(self, item: object) -> bool:
+        if not isinstance(item, str):
+            return False
+
         return self._wrap(item).casefold() in str(self.casefold())
 
     def __getitem__(self, item: Union[SupportsIndex, slice]) -> "String":
         return self._wrap(super().__getitem__(item))
 
-    def translate(
-        self,
-        table: TranslateTable,
-    ) -> "String":
+    def translate(self, table: TranslateTable) -> "String":
         return self._wrap(super().translate(table))
 
     @property
@@ -167,10 +164,7 @@ class String(str):
         end: Optional[SupportsIndex] = None,
     ) -> bool:
         prefix_list: Tuple[str, ...]
-        if isinstance(prefix, str):
-            prefix_list = (prefix,)
-        else:
-            prefix_list = prefix
+        prefix_list = (prefix,) if isinstance(prefix, str) else prefix
 
         mapped_list = tuple(self._wrap(p).casefold() for p in prefix_list)
 
@@ -183,10 +177,7 @@ class String(str):
         end: Optional[SupportsIndex] = None,
     ) -> bool:
         suffix_list: Tuple[str, ...]
-        if isinstance(suffix, str):
-            suffix_list = (suffix,)
-        else:
-            suffix_list = suffix
+        suffix_list = (suffix,) if isinstance(suffix, str) else suffix
 
         mapped_list = tuple(self._wrap(p).casefold() for p in suffix_list)
 

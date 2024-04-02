@@ -5,7 +5,7 @@ import pytest
 from irclib.util.string import ASCII, RFC1459, String
 
 
-def test_comparisons():
+def test_comparisons() -> None:
     """Test comparison logic"""
     # pylint: disable=misplaced-comparison-constant, unneeded-not
     str1 = String("A", ASCII)
@@ -53,8 +53,10 @@ def test_comparisons():
 
     assert str2 != "B"
 
+    assert str1 != 5
 
-def test_getitem():
+
+def test_getitem() -> None:
     """Test `getitem`"""
     s = String("abc")
     assert s[0] == "a"
@@ -62,19 +64,19 @@ def test_getitem():
     assert s[0].casemap is s.casemap
 
 
-def test_capitalize():
+def test_capitalize() -> None:
     """Test `capitalize`"""
     s = String("abC")
     assert s.capitalize() == "Abc"
 
 
-def test_swapcase():
+def test_swapcase() -> None:
     """Test `swapcase`"""
     s = String("abC")
     assert s.swapcase() == "ABc"
 
 
-def test_startswith():
+def test_startswith() -> None:
     """Test `startswith`"""
     s = String("aBc")
     assert s.startswith("a")
@@ -83,7 +85,7 @@ def test_startswith():
     assert s.startswith(("a", "b"))
 
 
-def test_endswith():
+def test_endswith() -> None:
     """Test `endswith`"""
     s = String("aBc")
     assert s.endswith("c")
@@ -92,7 +94,7 @@ def test_endswith():
     assert s.endswith(("b", "c"))
 
 
-def test_find():
+def test_find() -> None:
     """Test `find`"""
     s = String("AbCB")
     assert s.find("B") == 1
@@ -100,7 +102,7 @@ def test_find():
     assert s.find("d") == -1
 
 
-def test_rfind():
+def test_rfind() -> None:
     """Test `rfind`"""
     s = String("AbCB")
     assert s.rfind("B") == 3
@@ -108,47 +110,48 @@ def test_rfind():
     assert s.rfind("d") == -1
 
 
-def test_index():
+def test_index() -> None:
     """Test `index`"""
     s = String("AbCB")
     assert s.index("B") == 1
     assert s.index(String("B")) == 1
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="substring not found"):
         s.index("d")
 
 
-def test_rindex():
+def test_rindex() -> None:
     """Test `rindex`"""
     s = String("AbCB")
     assert s.rindex("B") == 3
     assert s.rindex(String("B")) == 3
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="substring not found"):
         s.rindex("d")
 
 
-def test_count():
+def test_count() -> None:
     """Test `count`"""
     assert String("aabbcc").count("a") == 2
     assert String("aabbcc").count(String("a")) == 2
 
 
-def test_hash():
+def test_hash() -> None:
     """Test hashing a string"""
     assert hash(String("ABC")) == hash(String("abc"))
 
 
-def test_contains():
+def test_contains() -> None:
     """Test `in` operator"""
     assert "a" in String("abc")
     assert String("a") in String("abc")
+    assert 445 not in String("abc")
 
 
-def test_instance():
+def test_instance() -> None:
     """Ensure that basic strings aren't being counted as String"""
     assert not isinstance("a", String)
 
 
-def test_rfc1459():
+def test_rfc1459() -> None:
     """Test rfc1459 casemap"""
     str1 = String("ABC|{", RFC1459)
     str2 = String("abc\\[", RFC1459)
@@ -158,21 +161,21 @@ def test_rfc1459():
     assert str(str1.upper()) == str(str2.upper())
 
 
-def test_partition():
+def test_partition() -> None:
     """Test partition"""
     s = String("ABc")
     assert s.partition("b") == ("A", "B", "c")
     assert s.partition("d") == ("ABc", "", "")
 
 
-def test_rpartition():
+def test_rpartition() -> None:
     """Test rpartition"""
     s = String("AbCbAcBa")
     assert s.rpartition("b") == ("AbCbAc", "B", "a")
     assert s.rpartition("d") == ("", "", "AbCbAcBa")
 
 
-def test_strip():
+def test_strip() -> None:
     """Test stripping characters"""
     s = String("AbCbAcBa")
     assert s.strip("d") == "AbCbAcBa"

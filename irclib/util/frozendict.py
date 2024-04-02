@@ -39,11 +39,8 @@ class FrozenDict(Mapping[str, V]):
         self,
         seq: Union[Mapping[str, V], Iterable[Tuple[str, V]], None] = None,
         **kwargs: V,
-    ):
-        if seq is not None:
-            d = dict(seq, **kwargs)
-        else:
-            d = dict(**kwargs)
+    ) -> None:
+        d = dict(seq, **kwargs) if seq is not None else dict(**kwargs)
 
         self.__data: Dict[str, V] = d
         self.__hash: Optional[int] = None
@@ -52,12 +49,12 @@ class FrozenDict(Mapping[str, V]):
         """Copy dict, replacing values according to kwargs.
 
         >>> fd = FrozenDict(a=1)
-        >>> fd['a']
+        >>> fd["a"]
         1
         >>> fd1 = fd.copy(a=2)
-        >>> fd1['a']
+        >>> fd1["a"]
         2
-        >>> fd['a']
+        >>> fd["a"]
         1
         """
         return self.__class__(self.__data, **kwargs)
