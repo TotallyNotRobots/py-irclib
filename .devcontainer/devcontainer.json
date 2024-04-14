@@ -37,7 +37,7 @@
                 "redhat.vscode-yaml"
             ],
             "settings": {
-                "python.pythonPath": "~/.virtualenvs/py-irclib/bin/python",
+                "python.defaultInterpreterPath": "~/.virtualenvs/py-irclib/bin/python",
                 "python.testing.pytestArgs": ["--no-cov"],
                 "terminal.integrated.profiles.linux": {
                     "zsh": {
