@@ -49,14 +49,14 @@ dependencies = [
 
 [tool.hatch.envs.default.scripts]
 test = "pytest"
-test-cov = ["- coverage erase", "coverage run -pm pytest"]
+test-cov = ["coverage run -pm pytest"]
 cov-report = [
     "- coverage combine",
     "coverage xml",
     "coverage report --show-missing",
 ]
-cov = ["test-cov", "cov-report"]
-cov-all = ["hatch run testall:test-cov", "cov-report"]
+cov = ["- coverage erase", "test-cov", "cov-report"]
+cov-all = ["- coverage erase", "hatch run testall:test-cov", "cov-report"]
 
 setup-pre-commit = "python3 -m pre_commit install --install-hooks"
 setup-dev = ["setup-pre-commit"]
@@ -148,13 +148,13 @@ warn_unreachable = true
 warn_return_any = true
 warn_no_return = true
 enable_error_code = [
-  "redundant-self",
-  "redundant-expr",
-  "possibly-undefined",
-  "truthy-bool",
-  "truthy-iterable",
-  "ignore-without-code",
-  "unused-awaitable",
+    "redundant-self",
+    "redundant-expr",
+    "possibly-undefined",
+    "truthy-bool",
+    "truthy-iterable",
+    "ignore-without-code",
+    "unused-awaitable",
 ]
 
 [tool.pytest.ini_options]
