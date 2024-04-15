@@ -1,3 +1,9 @@
+## v0.5.1 (2024-04-15)
+
+### Refactor
+
+- add Final and TypeAlias annotations
+
 ## v0.5.0 (2024-04-15)
 
 ## v0.4.0 (2024-04-14)
