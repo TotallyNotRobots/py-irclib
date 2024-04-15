@@ -30,7 +30,7 @@ Homepage = "https://github.com/TotallyNotRobots/py-irclib"
 path = "irclib/__init__.py"
 
 [tool.hatch.build.targets.sdist]
-include = ["irclib"]
+exclude = ["/.github"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["irclib"]

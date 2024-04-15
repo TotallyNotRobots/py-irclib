@@ -1,16 +1,15 @@
-ci:
-  skip: [pylint, mypy]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 2c9f875913ee60ca25ce70243dc24d5b6415598c  # frozen: v4.6.0
+    rev: 2c9f875913ee60ca25ce70243dc24d5b6415598c # frozen: v4.6.0
     hooks:
       - id: trailing-whitespace
         args: ["--markdown-linebreak-ext=md,markdown"]
+
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
       - id: check-ast
-      - id: check-byte-order-marker
+      - id: fix-byte-order-marker
       - id: check-merge-conflict
       - id: debug-statements
       - id: detect-private-key
@@ -18,8 +17,15 @@ repos:
       - id: check-case-conflict
       - id: check-docstring-first
       - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: mixed-line-ending
+        args:
+          - "--fix=lf"
+
       - id: check-json
         exclude: '^\.(vscode|devcontainer)/'
+
       - id: pretty-format-json
         args:
           - --indent
@@ -27,25 +33,26 @@ repos:
           - --autofix
           - --no-sort-keys
         exclude: '^\.(vscode|devcontainer)/'
+
       - id: check-toml
-      - id: fix-encoding-pragma
-        args:
-          - --remove
+
   - repo: https://github.com/psf/black
-    rev: 8fe627072f15ff2e3d380887b92f7868efaf6d05  # frozen: 24.4.0
+    rev: 8fe627072f15ff2e3d380887b92f7868efaf6d05 # frozen: 24.4.0
     hooks:
       - id: black
+
   - repo: https://github.com/pycqa/isort
     rev: c235f5e450b4b84e58d114ed4c589cbf454175a3 # frozen: 5.13.2
     hooks:
       - id: isort
+
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: 3a6eb0fadf60b3cccfd80bad9dbb6fae7e47b316 # frozen: v1.10.0
     hooks:
       - id: python-no-eval
       - id: python-no-log-warn
 
-  - repo: https://github.com/ikamensh/flynt/
+  - repo: https://github.com/ikamensh/flynt
     rev: "651c822fdcf45fffcf9743dc755085f32acb65e3" # frozen: 1.0.1
     hooks:
       - id: flynt
@@ -58,7 +65,7 @@ repos:
           - "--py38-plus"
 
   - repo: https://github.com/MarcoGorelli/auto-walrus
-    rev: 7855759486496a3248e9ff37dce7c6d57d39bfce  # frozen: 0.3.3
+    rev: 7855759486496a3248e9ff37dce7c6d57d39bfce # frozen: 0.3.3
     hooks:
       - id: auto-walrus
         additional_dependencies:
