@@ -8,6 +8,7 @@ import re
 from abc import ABCMeta, abstractmethod
 from typing import (
     Dict,
+    Final,
     Iterable,
     Iterator,
     List,
@@ -19,7 +20,7 @@ from typing import (
     cast,
 )
 
-from typing_extensions import Self
+from typing_extensions import Self, TypeAlias
 
 from irclib.errors import ParseError
 
@@ -32,29 +33,29 @@ __all__ = (
     "ParamList",
     "Message",
 )
-MsgTagList = Optional["TagList"]
-MsgPrefix = Optional["Prefix"]
-MessageTuple = Tuple[MsgTagList, MsgPrefix, str, "ParamList"]
+MsgTagList: TypeAlias = Optional["TagList"]
+MsgPrefix: TypeAlias = Optional["Prefix"]
+MessageTuple: TypeAlias = Tuple[MsgTagList, MsgPrefix, str, "ParamList"]
 
-TAGS_SENTINEL = "@"
-TAGS_SEP = ";"
-TAG_VALUE_SEP = "="
+TAGS_SENTINEL: Final = "@"
+TAGS_SEP: Final = ";"
+TAG_VALUE_SEP: Final = "="
 
-PREFIX_SENTINEL = ":"
-PREFIX_USER_SEP = "!"
-PREFIX_HOST_SEP = "@"
+PREFIX_SENTINEL: Final = ":"
+PREFIX_USER_SEP: Final = "!"
+PREFIX_HOST_SEP: Final = "@"
 
-PARAM_SEP = " "
-TRAIL_SENTINEL = ":"
+PARAM_SEP: Final = " "
+TRAIL_SENTINEL: Final = ":"
 
-CAP_SEP = " "
-CAP_VALUE_SEP = "="
+CAP_SEP: Final = " "
+CAP_VALUE_SEP: Final = "="
 
-PREFIX_RE = re.compile(
+PREFIX_RE: Final = re.compile(
     r"^:?(?P<nick>.*?)(?:!(?P<user>.*?))?(?:@(?P<host>.*?))?$"
 )
 
-TAG_VALUE_ESCAPES = {
+TAG_VALUE_ESCAPES: Final = {
     "\\s": " ",
     "\\:": ";",
     "\\r": "\r",
@@ -62,7 +63,7 @@ TAG_VALUE_ESCAPES = {
     "\\\\": "\\",
 }
 
-TAG_VALUE_UNESCAPES = {
+TAG_VALUE_UNESCAPES: Final = {
     unescaped: escaped for escaped, unescaped in TAG_VALUE_ESCAPES.items()
 }
 

@@ -3,10 +3,11 @@ IRC string comparison utilities
 """
 
 import re
+from typing import Final
 
 __all__ = ("match_mask",)
 
-GLOB_MAP = {"?": ".", "*": ".*"}
+GLOB_MAP: Final = {"?": ".", "*": ".*"}
 
 
 def match_mask(mask: str, pattern: str) -> bool:

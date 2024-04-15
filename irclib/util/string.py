@@ -7,6 +7,7 @@ import string
 from typing import (
     Callable,
     Dict,
+    Final,
     List,
     NamedTuple,
     Optional,
@@ -39,13 +40,13 @@ class Casemap(NamedTuple):
         return str.maketrans(self.upper, self.lower)
 
 
-RFC1459 = Casemap(
+RFC1459: Final = Casemap(
     "".join(map(chr, range(65, 95))), "".join(map(chr, range(97, 127)))
 )
-STRICT_RFC1459 = Casemap(
+STRICT_RFC1459: Final = Casemap(
     "".join(map(chr, range(65, 94))), "".join(map(chr, range(97, 126)))
 )
-ASCII = Casemap(
+ASCII: Final = Casemap(
     "".join(map(chr, range(65, 91))), "".join(map(chr, range(97, 123)))
 )
 
