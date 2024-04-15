@@ -2,7 +2,7 @@ ci:
   skip: [pylint, mypy]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: c4a0b883114b00d8d76b479c820ce7950211c99b # frozen: v4.5.0
+    rev: 2c9f875913ee60ca25ce70243dc24d5b6415598c  # frozen: v4.6.0
     hooks:
       - id: trailing-whitespace
         args: ["--markdown-linebreak-ext=md,markdown"]
@@ -32,7 +32,7 @@ repos:
         args:
           - --remove
   - repo: https://github.com/psf/black
-    rev: 552baf822992936134cbd31a38f69c8cfe7c0f05 # frozen: 24.3.0
+    rev: 8fe627072f15ff2e3d380887b92f7868efaf6d05  # frozen: 24.4.0
     hooks:
       - id: black
   - repo: https://github.com/pycqa/isort
@@ -58,9 +58,11 @@ repos:
           - "--py38-plus"
 
   - repo: https://github.com/MarcoGorelli/auto-walrus
-    rev: e95a3f5b9cd6a6808b803aef0c68a24c35b5891c # frozen: v0.2.2
+    rev: 7855759486496a3248e9ff37dce7c6d57d39bfce  # frozen: 0.3.3
     hooks:
       - id: auto-walrus
+        additional_dependencies:
+          - "tomli ; python_version < '3.11'"
 
   - repo: local
     hooks:

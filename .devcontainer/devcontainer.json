@@ -34,7 +34,9 @@
                 "EditorConfig.EditorConfig",
                 "GitHub.vscode-pull-request-github",
                 "github.vscode-github-actions",
-                "redhat.vscode-yaml"
+                "redhat.vscode-yaml",
+                "ms-python.black-formatter",
+                "ms-python.isort"
             ],
             "settings": {
                 "python.defaultInterpreterPath": "~/.virtualenvs/py-irclib/bin/python",
@@ -44,7 +46,10 @@
                         "path": "/usr/bin/zsh"
                     }
                 },
-                "terminal.integrated.defaultProfile.linux": "zsh"
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.python"
+                }
             }
         }
     }

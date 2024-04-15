@@ -94,7 +94,15 @@ skip-magic-trailing-comma = true
 
 [tool.ruff.lint]
 ignore-init-module-imports = false
-extend-safe-fixes = ["EM101", 'EM102', "TCH001", "SIM117", "SIM108", "ANN201"]
+extend-safe-fixes = [
+    "EM101",
+    "EM102",
+    "EM103",
+    "TCH001",
+    "SIM117",
+    "SIM108",
+    "ANN201",
+]
 ignore = [
     "D",
     "TRY003", # TODO(aspen): Switch to custom exceptions
@@ -168,7 +176,8 @@ exclude_lines = [
     "pragma: no cover",
     "raise AssertionError",
     "raise NotImplementedError",
-    'if __name__ == .__main__.:',
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
 ]
 
 [tool.coverage.run]
