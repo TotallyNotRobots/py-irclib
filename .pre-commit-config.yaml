@@ -71,6 +71,13 @@ repos:
         additional_dependencies:
           - "tomli ; python_version < '3.11'"
 
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.4
+    hooks:
+      - id: codespell
+        additional_dependencies:
+          - "tomli ; python_version < '3.11'"
+
   - repo: local
     hooks:
       - id: mypy

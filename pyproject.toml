@@ -122,7 +122,7 @@ select = ["ALL"]
     "SIM201",  # We need to test weird comparison operators
     "SIM202",  # We need to test weird comparison operstors
     "SIM300",  # We need to test both forward and reverse comparisons
-    "FBT001",  # Boolean paramters are fine for test cases
+    "FBT001",  # Boolean parameters are fine for test cases
 ]
 
 [tool.ruff.lint.pycodestyle]
