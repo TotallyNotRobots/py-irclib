@@ -58,7 +58,7 @@ cov-report = [
 cov = ["- coverage erase", "test-cov", "cov-report"]
 cov-all = ["- coverage erase", "hatch run testall:test-cov", "cov-report"]
 
-setup-pre-commit = "python3 -m pre_commit install --install-hooks"
+setup-pre-commit = "python3 -m pre_commit install --install-hooks -t commit-msg -t pre-push -t pre-commit"
 setup-dev = ["setup-pre-commit"]
 
 pre-commit = "python3 -m pre_commit run {args:--all}"
