@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
@@ -27,7 +27,7 @@ dependencies = ["attrs>=20.3.0", "typing_extensions"]
 Homepage = "https://github.com/TotallyNotRobots/py-irclib"
 
 [tool.hatch.version]
-path = "irclib/__init__.py"
+source = "vcs"
 
 [tool.hatch.build.targets.sdist]
 exclude = ["/.github"]
@@ -183,3 +183,11 @@ exclude_lines = [
 [tool.coverage.run]
 branch = true
 relative_files = true
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
+version_scheme = "semver"
+version_provider = "scm"
+update_changelog_on_bump = true
+major_version_zero = true
