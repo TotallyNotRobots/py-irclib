@@ -34,7 +34,8 @@ class CommandArgument:
         elif start_end == "[]":
             required = False
         else:
-            raise ValueError("Unable to parse argument: " + s)
+            msg = f"Unable to parse argument: {s}"
+            raise ValueError(msg)
 
         return cls(name, required)
 
