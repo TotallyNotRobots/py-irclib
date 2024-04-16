@@ -35,6 +35,9 @@ exclude = ["/.github"]
 [tool.hatch.build.targets.wheel]
 packages = ["irclib"]
 
+[tool.hatch.build.hooks.vcs]
+version-file = "irclib/_version.py"
+
 [tool.hatch.env]
 requires = ["hatch-containers"]
 
@@ -98,7 +101,10 @@ extend-safe-fixes = [
     "EM101",
     "EM102",
     "EM103",
+    "FLY002",
     "TCH001",
+    "TCH002",
+    "TRY400",
     "SIM117",
     "SIM108",
     "ANN201",
@@ -155,6 +161,7 @@ extra_checks = true
 warn_unreachable = true
 warn_return_any = true
 warn_no_return = true
+incremental = false
 enable_error_code = [
     "redundant-self",
     "redundant-expr",
@@ -162,7 +169,6 @@ enable_error_code = [
     "truthy-bool",
     "truthy-iterable",
     "ignore-without-code",
-    "unused-awaitable",
 ]
 
 [tool.pytest.ini_options]
