@@ -707,6 +707,18 @@ class TestMessage:
         assert line.command == "COMMAND"
         assert line.parameters == ["some", "params", "and stuff"]
 
+    def test_parse_bytearray(self) -> None:
+        """Test parsing bytearray"""
+        line = Message.parse(bytearray(b"COMMAND some params :and stuff"))
+        assert line.command == "COMMAND"
+        assert line.parameters == ["some", "params", "and stuff"]
+
+    def test_parse_memoryview(self) -> None:
+        """Test parsing memoryview"""
+        line = Message.parse(memoryview(b"COMMAND some params :and stuff"))
+        assert line.command == "COMMAND"
+        assert line.parameters == ["some", "params", "and stuff"]
+
     @pytest.mark.parametrize(
         ("obj", "text"),
         [

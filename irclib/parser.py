@@ -130,10 +130,10 @@ class Cap(Parseable):
         return self.name
 
     @classmethod
-    def parse(cls, text: str) -> "Cap":
+    def parse(cls, text: str) -> Self:
         """Parse a CAP entity from a string"""
         name, _, value = text.partition(CAP_VALUE_SEP)
-        return Cap(name, value or None)
+        return cls(name, value or None)
 
 
 class CapList(Parseable, List[Cap]):
@@ -161,7 +161,7 @@ class CapList(Parseable, List[Cap]):
         return CAP_SEP.join(map(str, self))
 
     @classmethod
-    def parse(cls, text: str) -> "CapList":
+    def parse(cls, text: str) -> Self:
         """Parse a list of CAPs from a string"""
         if text.startswith(":"):
             text = text[1:]  # Remove leading colon
@@ -175,7 +175,7 @@ class CapList(Parseable, List[Cap]):
             [] if not text else (Cap.parse(s) for s in stripped.split(CAP_SEP))
         )
 
-        return CapList(caps)
+        return cls(caps)
 
 
 class MessageTag(Parseable):
@@ -259,7 +259,7 @@ class MessageTag(Parseable):
         return NotImplemented
 
     @classmethod
-    def parse(cls, text: str) -> "MessageTag":
+    def parse(cls, text: str) -> Self:
         """
         Parse a tag from a string
 
@@ -270,7 +270,7 @@ class MessageTag(Parseable):
         if value:
             value = MessageTag.unescape(value)
 
-        return MessageTag(name, value, has_value=bool(sep))
+        return cls(name, value, has_value=bool(sep))
 
 
 class TagList(Parseable, Dict[str, MessageTag]):
@@ -316,21 +316,19 @@ class TagList(Parseable, Dict[str, MessageTag]):
         return dict(self) != dict(obj)
 
     @classmethod
-    def parse(cls, text: str) -> "TagList":
+    def parse(cls, text: str) -> Self:
         """
         Parse the list of tags from a string
 
         :param text: The string to parse
         :return: The parsed object
         """
-        return TagList(
-            map(MessageTag.parse, filter(None, text.split(TAGS_SEP)))
-        )
+        return cls(map(MessageTag.parse, filter(None, text.split(TAGS_SEP))))
 
-    @staticmethod
-    def from_dict(tags: Dict[str, str]) -> "TagList":
+    @classmethod
+    def from_dict(cls, tags: Dict[str, str]) -> Self:
         """Create a TagList from a dict of tags"""
-        return TagList(MessageTag(k, v) for k, v in tags.items())
+        return cls(MessageTag(k, v) for k, v in tags.items())
 
 
 class Prefix(Parseable):
@@ -414,7 +412,7 @@ class Prefix(Parseable):
         return NotImplemented
 
     @classmethod
-    def parse(cls, text: str) -> "Prefix":
+    def parse(cls, text: str) -> Self:
         """
         Parse the prefix from a string
 
@@ -422,7 +420,7 @@ class Prefix(Parseable):
         :return: Parsed Object
         """
         if not text:
-            return Prefix()
+            return cls()
 
         match = PREFIX_RE.match(text)
         if not match:  # pragma: no cover
@@ -431,7 +429,7 @@ class Prefix(Parseable):
             raise ParseError(msg)
 
         nick, user, host = match.groups()
-        return Prefix(nick, user, host)
+        return cls(nick, user, host)
 
 
 class ParamList(Parseable, List[str]):
@@ -481,11 +479,11 @@ class ParamList(Parseable, List[str]):
 
         return NotImplemented
 
-    @staticmethod
-    def from_list(data: Sequence[str]) -> "ParamList":
+    @classmethod
+    def from_list(cls, data: Sequence[str]) -> Self:
         """Create a ParamList from a Sequence of strings."""
         if not data:
-            return ParamList()
+            return cls()
 
         args = list(data[:-1])
         if data[-1].startswith(TRAIL_SENTINEL) or not data[-1]:
@@ -495,10 +493,10 @@ class ParamList(Parseable, List[str]):
             has_trail = False
             args.append(data[-1])
 
-        return ParamList(*args, has_trail=has_trail)
+        return cls(*args, has_trail=has_trail)
 
     @classmethod
-    def parse(cls, text: str) -> "ParamList":
+    def parse(cls, text: str) -> Self:
         """
         Parse a list of parameters
 
@@ -517,7 +515,7 @@ class ParamList(Parseable, List[str]):
             if arg:
                 args.append(arg)
 
-        return ParamList(*args, has_trail=has_trail)
+        return cls(*args, has_trail=has_trail)
 
 
 def _parse_tags(
@@ -639,9 +637,12 @@ class Message(Parseable):
         return NotImplemented
 
     @classmethod
-    def parse(cls, text: Union[str, bytes]) -> "Message":
+    def parse(cls, text: Union[str, bytes]) -> Self:
         """Parse an IRC message in to objects"""
-        if isinstance(text, bytes):
+        if isinstance(text, memoryview):
+            text = text.tobytes().decode(errors="ignore")
+
+        if isinstance(text, (bytes, bytearray)):
             text = text.decode(errors="ignore")
 
         tags = ""
@@ -659,4 +660,4 @@ class Message(Parseable):
         prefix_obj = Prefix.parse(prefix[1:]) if prefix else None
         command = command.upper()
         param_obj = ParamList.parse(params)
-        return Message(tags_obj, prefix_obj, command, param_obj)
+        return cls(tags_obj, prefix_obj, command, param_obj)
