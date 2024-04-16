@@ -1,3 +1,9 @@
+## v0.6.0 (2024-04-16)
+
+### Feat
+
+- switch to Self type for constructor method returns
+
 ## v0.5.1 (2024-04-15)
 
 ### Refactor
