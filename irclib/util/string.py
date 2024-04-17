@@ -63,9 +63,6 @@ class String(str):
 
     _casemap: Casemap
 
-    def _wrap(self, value: str) -> "String":
-        return self.__class__.__new__(self.__class__, value, self.casemap)
-
     def __new__(
         cls, value: str = "", casemap: Optional[Casemap] = None
     ) -> "String":
@@ -73,8 +70,8 @@ class String(str):
         o._casemap = casemap or ASCII  # noqa: SLF001
         return o
 
-    def __hash__(self) -> int:
-        return hash(str(self.lower()))
+    def _wrap(self, value: str) -> "String":
+        return self.__class__.__new__(self.__class__, value, self.casemap)
 
     def __internal_cmp(
         self, other: object, cmp: Callable[[str, str], bool]
@@ -87,42 +84,12 @@ class String(str):
 
         return NotImplemented
 
-    def __lt__(self, other: str) -> bool:
-        return self.__internal_cmp(other, operator.lt)
-
-    def __le__(self, other: str) -> bool:
-        return self.__internal_cmp(other, operator.le)
-
-    def __eq__(self, other: object) -> bool:
-        return self.__internal_cmp(other, operator.eq)
-
-    def __ne__(self, other: object) -> bool:
-        return self.__internal_cmp(other, operator.ne)
-
-    def __gt__(self, other: str) -> bool:
-        return self.__internal_cmp(other, operator.gt)
-
-    def __ge__(self, other: str) -> bool:
-        return self.__internal_cmp(other, operator.ge)
-
-    def __contains__(self, item: object) -> bool:
-        if not isinstance(item, str):
-            return False
-
-        return self._wrap(item).casefold() in str(self.casefold())
-
-    def __getitem__(self, item: Union[SupportsIndex, slice]) -> "String":
-        return self._wrap(super().__getitem__(item))
-
     def translate(self, table: TranslateTable) -> "String":
         return self._wrap(super().translate(table))
 
     @property
     def _capitalize(self) -> "String":
         return self[:1].upper() + self[1:].lower()
-
-    def __add__(self, other: str) -> "String":
-        return self._wrap(str(self) + other)
 
     def capitalize(self) -> "String":
         return self._capitalize
@@ -295,3 +262,36 @@ class String(str):
     def casemap(self) -> Casemap:
         """Casemap associated with this string"""
         return self._casemap
+
+    def __getitem__(self, item: Union[SupportsIndex, slice]) -> "String":
+        return self._wrap(super().__getitem__(item))
+
+    def __contains__(self, item: object) -> bool:
+        if not isinstance(item, str):
+            return False
+
+        return self._wrap(item).casefold() in str(self.casefold())
+
+    def __add__(self, other: str) -> "String":
+        return self._wrap(str(self) + other)
+
+    def __lt__(self, other: str) -> bool:
+        return self.__internal_cmp(other, operator.lt)
+
+    def __le__(self, other: str) -> bool:
+        return self.__internal_cmp(other, operator.le)
+
+    def __eq__(self, other: object) -> bool:
+        return self.__internal_cmp(other, operator.eq)
+
+    def __ne__(self, other: object) -> bool:
+        return self.__internal_cmp(other, operator.ne)
+
+    def __gt__(self, other: str) -> bool:
+        return self.__internal_cmp(other, operator.gt)
+
+    def __ge__(self, other: str) -> bool:
+        return self.__internal_cmp(other, operator.ge)
+
+    def __hash__(self) -> int:
+        return hash(str(self.lower()))

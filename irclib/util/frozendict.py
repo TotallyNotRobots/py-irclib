@@ -26,15 +26,6 @@ class FrozenDict(Mapping[str, V]):
 
     __slots__ = ("__hash", "__data")
 
-    def __getitem__(self, k: str) -> V:
-        return self.__data[k]
-
-    def __len__(self) -> int:
-        return len(self.__data)
-
-    def __iter__(self) -> Iterator[str]:
-        return iter(self.__data)
-
     def __init__(
         self,
         seq: Union[Mapping[str, V], Iterable[Tuple[str, V]], None] = None,
@@ -58,6 +49,15 @@ class FrozenDict(Mapping[str, V]):
         1
         """
         return self.__class__(self.__data, **kwargs)
+
+    def __getitem__(self, k: str) -> V:
+        return self.__data[k]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self.__data)
+
+    def __len__(self) -> int:
+        return len(self.__data)
 
     def __hash__(self) -> int:
         if self.__hash is None:

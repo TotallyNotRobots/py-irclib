@@ -30,20 +30,20 @@ class NumericsDict(Mapping[str, Numeric]):
         """Get a numeric by name."""
         return self.names[name.upper()]
 
-    def __iter__(self) -> Iterator[str]:
-        return iter(self.num_strs)
-
-    def __len__(self) -> int:
-        return len(self.names)
-
-    def __getitem__(self, key: str) -> Numeric:
-        return self.nums[int(key)]
-
     def __getattr__(self, item: str) -> Numeric:
         try:
             return self.names[str(item).upper()]
         except LookupError:
             raise AttributeError(item) from None
+
+    def __getitem__(self, key: str) -> Numeric:
+        return self.nums[int(key)]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self.num_strs)
+
+    def __len__(self) -> int:
+        return len(self.names)
 
 
 numerics = NumericsDict(

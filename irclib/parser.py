@@ -73,14 +73,14 @@ SelfT = TypeVar("SelfT")
 class Parseable(metaclass=ABCMeta):
     """Abstract class for parseable objects"""
 
-    @abstractmethod
-    def __str__(self) -> str:
-        raise NotImplementedError
-
     @classmethod
     @abstractmethod
     def parse(cls, text: str) -> Self:
         """Parse the object from a string"""
+        raise NotImplementedError
+
+    @abstractmethod
+    def __str__(self) -> str:
         raise NotImplementedError
 
 
@@ -104,6 +104,12 @@ class Cap(Parseable):
     def as_tuple(self) -> Tuple[str, Optional[str]]:
         """Get data as a tuple of values"""
         return self.name, self.value
+
+    @classmethod
+    def parse(cls, text: str) -> Self:
+        """Parse a CAP entity from a string"""
+        name, _, value = text.partition(CAP_VALUE_SEP)
+        return cls(name, value or None)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
@@ -129,15 +135,26 @@ class Cap(Parseable):
 
         return self.name
 
-    @classmethod
-    def parse(cls, text: str) -> Self:
-        """Parse a CAP entity from a string"""
-        name, _, value = text.partition(CAP_VALUE_SEP)
-        return cls(name, value or None)
-
 
 class CapList(Parseable, List[Cap]):
     """Represents a list of CAP entities"""
+
+    @classmethod
+    def parse(cls, text: str) -> Self:
+        """Parse a list of CAPs from a string"""
+        if text.startswith(":"):
+            text = text[1:]  # Remove leading colon
+
+        # We want to strip any leading or trailing whitespace
+        # Some networks (ie: freenode) send a trailing space in a CAP ACK
+        stripped = text.strip()
+
+        caps: Iterable[Cap]
+        caps = (
+            [] if not text else (Cap.parse(s) for s in stripped.split(CAP_SEP))
+        )
+
+        return cls(caps)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
@@ -159,23 +176,6 @@ class CapList(Parseable, List[Cap]):
 
     def __str__(self) -> str:
         return CAP_SEP.join(map(str, self))
-
-    @classmethod
-    def parse(cls, text: str) -> Self:
-        """Parse a list of CAPs from a string"""
-        if text.startswith(":"):
-            text = text[1:]  # Remove leading colon
-
-        # We want to strip any leading or trailing whitespace
-        # Some networks (ie: freenode) send a trailing space in a CAP ACK
-        stripped = text.strip()
-
-        caps: Iterable[Cap]
-        caps = (
-            [] if not text else (Cap.parse(s) for s in stripped.split(CAP_SEP))
-        )
-
-        return cls(caps)
 
 
 class MessageTag(Parseable):
@@ -231,14 +231,19 @@ class MessageTag(Parseable):
         """
         return "".join(TAG_VALUE_UNESCAPES.get(c, c) for c in value)
 
-    def __repr__(self) -> str:
-        return f"MessageTag(name={self.name!r}, value={self.value!r})"
+    @classmethod
+    def parse(cls, text: str) -> Self:
+        """
+        Parse a tag from a string
 
-    def __str__(self) -> str:
-        if self.value or self._has_value:
-            return f"{self.name}{TAG_VALUE_SEP}{self.escape(self.value)}"
+        :param text: The basic tag string
+        :return: The MessageTag object
+        """
+        name, sep, value = text.partition(TAG_VALUE_SEP)
+        if value:
+            value = MessageTag.unescape(value)
 
-        return self.name
+        return cls(name, value, has_value=bool(sep))
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, str):
@@ -258,19 +263,14 @@ class MessageTag(Parseable):
 
         return NotImplemented
 
-    @classmethod
-    def parse(cls, text: str) -> Self:
-        """
-        Parse a tag from a string
+    def __repr__(self) -> str:
+        return f"MessageTag(name={self.name!r}, value={self.value!r})"
 
-        :param text: The basic tag string
-        :return: The MessageTag object
-        """
-        name, sep, value = text.partition(TAG_VALUE_SEP)
-        if value:
-            value = MessageTag.unescape(value)
+    def __str__(self) -> str:
+        if self.value or self._has_value:
+            return f"{self.name}{TAG_VALUE_SEP}{self.escape(self.value)}"
 
-        return cls(name, value, has_value=bool(sep))
+        return self.name
 
 
 class TagList(Parseable, Dict[str, MessageTag]):
@@ -278,9 +278,6 @@ class TagList(Parseable, Dict[str, MessageTag]):
 
     def __init__(self, tags: Iterable[MessageTag] = ()) -> None:
         super().__init__((tag.name, tag) for tag in tags)
-
-    def __str__(self) -> str:
-        return TAGS_SEP.join(map(str, self.values()))
 
     @staticmethod
     def _cmp_type_map(obj: object) -> Dict[str, MessageTag]:
@@ -301,20 +298,6 @@ class TagList(Parseable, Dict[str, MessageTag]):
 
         return NotImplemented
 
-    def __eq__(self, other: object) -> bool:
-        obj = self._cmp_type_map(other)
-        if obj is NotImplemented:
-            return NotImplemented
-
-        return dict(self) == dict(obj)
-
-    def __ne__(self, other: object) -> bool:
-        obj = self._cmp_type_map(other)
-        if obj is NotImplemented:
-            return NotImplemented
-
-        return dict(self) != dict(obj)
-
     @classmethod
     def parse(cls, text: str) -> Self:
         """
@@ -329,6 +312,23 @@ class TagList(Parseable, Dict[str, MessageTag]):
     def from_dict(cls, tags: Dict[str, str]) -> Self:
         """Create a TagList from a dict of tags"""
         return cls(MessageTag(k, v) for k, v in tags.items())
+
+    def __eq__(self, other: object) -> bool:
+        obj = self._cmp_type_map(other)
+        if obj is NotImplemented:
+            return NotImplemented
+
+        return dict(self) == dict(obj)
+
+    def __ne__(self, other: object) -> bool:
+        obj = self._cmp_type_map(other)
+        if obj is NotImplemented:
+            return NotImplemented
+
+        return dict(self) != dict(obj)
+
+    def __str__(self) -> str:
+        return TAGS_SEP.join(map(str, self.values()))
 
 
 class Prefix(Parseable):
@@ -384,33 +384,6 @@ class Prefix(Parseable):
     def _data(self) -> Tuple[str, str, str]:
         return self.nick, self.user, self.host
 
-    def __iter__(self) -> Iterator[str]:
-        return iter(self._data)
-
-    def __str__(self) -> str:
-        return self.mask
-
-    def __bool__(self) -> bool:
-        return any(self)
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, str):
-            return self == self.parse(other)
-
-        if isinstance(other, Prefix):
-            return self._data == other._data
-
-        return NotImplemented
-
-    def __ne__(self, other: object) -> bool:
-        if isinstance(other, str):
-            return self != self.parse(other)
-
-        if isinstance(other, Prefix):
-            return self._data != other._data
-
-        return NotImplemented
-
     @classmethod
     def parse(cls, text: str) -> Self:
         """
@@ -431,6 +404,33 @@ class Prefix(Parseable):
         nick, user, host = match.groups()
         return cls(nick, user, host)
 
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._data)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, str):
+            return self == self.parse(other)
+
+        if isinstance(other, Prefix):
+            return self._data == other._data
+
+        return NotImplemented
+
+    def __ne__(self, other: object) -> bool:
+        if isinstance(other, str):
+            return self != self.parse(other)
+
+        if isinstance(other, Prefix):
+            return self._data != other._data
+
+        return NotImplemented
+
+    def __bool__(self) -> bool:
+        return any(self)
+
+    def __str__(self) -> str:
+        return self.mask
+
 
 class ParamList(Parseable, List[str]):
     """
@@ -445,39 +445,6 @@ class ParamList(Parseable, List[str]):
     def has_trail(self) -> bool:
         """Does the parameter list end with a trailing parameter"""
         return self._has_trail
-
-    def __str__(self) -> str:
-        if not self:
-            return ""
-
-        needs_trail = (
-            PARAM_SEP in self[-1]
-            or self[-1].startswith(TRAIL_SENTINEL)
-            or not self[-1]
-        )
-
-        if self.has_trail or needs_trail:
-            return PARAM_SEP.join(self[:-1] + [TRAIL_SENTINEL + self[-1]])
-
-        return PARAM_SEP.join(self)
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, str):
-            return self == self.parse(other)
-
-        if isinstance(other, list):
-            return list(self) == list(self.from_list(other))
-
-        return NotImplemented
-
-    def __ne__(self, other: object) -> bool:
-        if isinstance(other, str):
-            return self != self.parse(other)
-
-        if isinstance(other, list):
-            return list(self) != list(other)
-
-        return NotImplemented
 
     @classmethod
     def from_list(cls, data: Sequence[str]) -> Self:
@@ -516,6 +483,39 @@ class ParamList(Parseable, List[str]):
                 args.append(arg)
 
         return cls(*args, has_trail=has_trail)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, str):
+            return self == self.parse(other)
+
+        if isinstance(other, list):
+            return list(self) == list(self.from_list(other))
+
+        return NotImplemented
+
+    def __ne__(self, other: object) -> bool:
+        if isinstance(other, str):
+            return self != self.parse(other)
+
+        if isinstance(other, list):
+            return list(self) != list(other)
+
+        return NotImplemented
+
+    def __str__(self) -> str:
+        if not self:
+            return ""
+
+        needs_trail = (
+            PARAM_SEP in self[-1]
+            or self[-1].startswith(TRAIL_SENTINEL)
+            or not self[-1]
+        )
+
+        if self.has_trail or needs_trail:
+            return PARAM_SEP.join(self[:-1] + [TRAIL_SENTINEL + self[-1]])
+
+        return PARAM_SEP.join(self)
 
 
 def _parse_tags(
@@ -603,39 +603,6 @@ class Message(Parseable):
         """Get the message object as a tuple of values"""
         return self.tags, self.prefix, self.command, self.parameters
 
-    def __str__(self) -> str:
-        tag_str = "" if self.tags is None else TAGS_SENTINEL + str(self.tags)
-        prefix_str = (
-            "" if self.prefix is None else PREFIX_SENTINEL + str(self.prefix)
-        )
-
-        return PARAM_SEP.join(
-            str(s)
-            for s in (tag_str, prefix_str, self.command, self.parameters)
-            if s
-        )
-
-    def __bool__(self) -> bool:
-        return any(self.as_tuple())
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, (str, bytes)):
-            return self == Message.parse(other)
-
-        if isinstance(other, Message):
-            return self.as_tuple() == other.as_tuple()
-
-        return NotImplemented
-
-    def __ne__(self, other: object) -> bool:
-        if isinstance(other, (str, bytes)):
-            return self != Message.parse(other)
-
-        if isinstance(other, Message):
-            return self.as_tuple() != other.as_tuple()
-
-        return NotImplemented
-
     @classmethod
     def parse(cls, text: Union[str, bytes]) -> Self:
         """Parse an IRC message in to objects"""
@@ -661,3 +628,36 @@ class Message(Parseable):
         command = command.upper()
         param_obj = ParamList.parse(params)
         return cls(tags_obj, prefix_obj, command, param_obj)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, (str, bytes)):
+            return self == Message.parse(other)
+
+        if isinstance(other, Message):
+            return self.as_tuple() == other.as_tuple()
+
+        return NotImplemented
+
+    def __ne__(self, other: object) -> bool:
+        if isinstance(other, (str, bytes)):
+            return self != Message.parse(other)
+
+        if isinstance(other, Message):
+            return self.as_tuple() != other.as_tuple()
+
+        return NotImplemented
+
+    def __bool__(self) -> bool:
+        return any(self.as_tuple())
+
+    def __str__(self) -> str:
+        tag_str = "" if self.tags is None else TAGS_SENTINEL + str(self.tags)
+        prefix_str = (
+            "" if self.prefix is None else PREFIX_SENTINEL + str(self.prefix)
+        )
+
+        return PARAM_SEP.join(
+            str(s)
+            for s in (tag_str, prefix_str, self.command, self.parameters)
+            if s
+        )

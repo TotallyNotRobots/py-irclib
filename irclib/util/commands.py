@@ -64,10 +64,10 @@ class LookupDict(Mapping[str, Command]):
         except AttributeError as e:
             raise KeyError(key) from e
 
-    def __len__(self) -> int:
+    def __iter__(self) -> Iterator[str]:
         raise NotImplementedError
 
-    def __iter__(self) -> Iterator[str]:
+    def __len__(self) -> int:
         raise NotImplementedError
 
 
