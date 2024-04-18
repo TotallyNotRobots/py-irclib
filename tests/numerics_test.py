@@ -1,20 +1,20 @@
-"""Test numerics util"""
+"""Test numerics util."""
 
 from irclib.util import numerics
 
 
 def test_lookup() -> None:
-    """Test looking up a numeric"""
+    """Test looking up a numeric."""
     n = numerics.numerics["001"]
     assert n is numerics.numerics.from_int(1)
     assert n is numerics.numerics.from_name("RPL_WELCOME")
 
 
 def test_iter() -> None:
-    """Test iterating the numerics list"""
+    """Test iterating the numerics list."""
     assert next(iter(numerics.numerics)) == "001"
 
 
 def test_len() -> None:
-    """Test checking the length of the numerics list"""
+    """Test checking the length of the numerics list."""
     assert len(numerics.numerics) > 0

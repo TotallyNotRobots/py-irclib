@@ -1,6 +1,4 @@
-"""
-IRC string utils
-"""
+"""IRC string utils."""
 
 import operator
 import string
@@ -21,7 +19,7 @@ __all__ = ("Casemap", "RFC1459", "STRICT_RFC1459", "ASCII", "String")
 
 
 class Casemap(NamedTuple):
-    """String case-map
+    """String case-map.
 
     Represents a mapping of lower to upper case letters
     """
@@ -31,12 +29,12 @@ class Casemap(NamedTuple):
 
     @property
     def lower_table(self) -> Dict[int, int]:
-        """The lower->upper translation table"""
+        """The lower->upper translation table."""
         return str.maketrans(self.lower, self.upper)
 
     @property
     def upper_table(self) -> Dict[int, int]:
-        """The upper->lower table"""
+        """The upper->lower table."""
         return str.maketrans(self.upper, self.lower)
 
 
@@ -57,7 +55,7 @@ class TranslateTable(Protocol):
 
 
 class String(str):
-    """Case-insensitive string"""
+    """Case-insensitive string."""
 
     __slots__ = ("_casemap",)
 
@@ -66,11 +64,13 @@ class String(str):
     def __new__(
         cls, value: str = "", casemap: Optional[Casemap] = None
     ) -> "String":
+        """Construct new String and set casemap."""
         o = str.__new__(cls, value)
         o._casemap = casemap or ASCII  # noqa: SLF001
         return o
 
     def _wrap(self, value: str) -> "String":
+        """Convert value to String with matching casemap."""
         return self.__class__.__new__(self.__class__, value, self.casemap)
 
     def __internal_cmp(
@@ -85,6 +85,7 @@ class String(str):
         return NotImplemented
 
     def translate(self, table: TranslateTable) -> "String":
+        """Apply translation table to string."""
         return self._wrap(super().translate(table))
 
     @property
@@ -92,6 +93,10 @@ class String(str):
         return self[:1].upper() + self[1:].lower()
 
     def capitalize(self) -> "String":
+        """Return a capitalized version of the string.
+
+        More specifically, make the first character have upper case and the rest lower case.
+        """
         return self._capitalize
 
     @property
@@ -99,6 +104,7 @@ class String(str):
         return self.lower()
 
     def casefold(self) -> "String":
+        """Casefold the string according to the casemap."""
         return self._casefold
 
     @property
@@ -106,6 +112,7 @@ class String(str):
         return self.translate(self.casemap.lower_table)
 
     def lower(self) -> "String":
+        """Lowercase the string according to the casemap."""
         return self._lower
 
     @property
@@ -113,6 +120,7 @@ class String(str):
         return self.translate(self.casemap.upper_table)
 
     def upper(self) -> "String":
+        """Uppercase the string according to the casemap."""
         return self._upper
 
     def count(
@@ -121,6 +129,7 @@ class String(str):
         start: Optional[SupportsIndex] = None,
         end: Optional[SupportsIndex] = None,
     ) -> int:
+        """Count substring occurrences."""
         return str(self.casefold()).count(
             self._wrap(sub).casefold(), start, end
         )
@@ -131,6 +140,7 @@ class String(str):
         start: Optional[SupportsIndex] = None,
         end: Optional[SupportsIndex] = None,
     ) -> bool:
+        """Check if string starts with a prefix."""
         prefix_list: Tuple[str, ...]
         prefix_list = (prefix,) if isinstance(prefix, str) else prefix
 
@@ -144,6 +154,7 @@ class String(str):
         start: Optional[SupportsIndex] = None,
         end: Optional[SupportsIndex] = None,
     ) -> bool:
+        """Check if string ends with a suffix."""
         suffix_list: Tuple[str, ...]
         suffix_list = (suffix,) if isinstance(suffix, str) else suffix
 
@@ -157,6 +168,7 @@ class String(str):
         start: Optional[SupportsIndex] = None,
         end: Optional[SupportsIndex] = None,
     ) -> int:
+        """Find the substring in string."""
         return str(self.casefold()).find(self._wrap(sub).casefold(), start, end)
 
     def rfind(
@@ -165,6 +177,7 @@ class String(str):
         start: Optional[SupportsIndex] = None,
         end: Optional[SupportsIndex] = None,
     ) -> int:
+        """Perform a reverse find."""
         return str(self.casefold()).rfind(
             self._wrap(sub).casefold(), start, end
         )
@@ -175,6 +188,7 @@ class String(str):
         start: Optional[SupportsIndex] = None,
         end: Optional[SupportsIndex] = None,
     ) -> int:
+        """Find the index of the substring."""
         return str(self.casefold()).index(
             self._wrap(sub).casefold(), start, end
         )
@@ -185,11 +199,13 @@ class String(str):
         start: Optional[SupportsIndex] = None,
         end: Optional[SupportsIndex] = None,
     ) -> int:
+        """Perform a reverse index."""
         return str(self.casefold()).rindex(
             self._wrap(sub).casefold(), start, end
         )
 
     def partition(self, sep: str) -> Tuple["String", "String", "String"]:
+        """Partition string on a separator."""
         pos = self.find(sep)
         if pos < 0:
             return self, self._wrap(""), self._wrap("")
@@ -197,6 +213,7 @@ class String(str):
         return self[:pos], self[pos : pos + len(sep)], self[pos + len(sep) :]
 
     def rpartition(self, sep: str) -> Tuple["String", "String", "String"]:
+        """Reverse partition a string on a separator."""
         pos = self.rfind(sep)
         if pos < 0:
             return self._wrap(""), self._wrap(""), self
@@ -206,12 +223,15 @@ class String(str):
     def replace(
         self, old: str, new: str, count: SupportsIndex = -1
     ) -> "String":
+        """Not currently implemented."""
         raise NotImplementedError
 
     def strip(self, chars: Optional[str] = None) -> "String":
+        """Remove characters from the beginning and end of the string."""
         return self.lstrip(chars).rstrip(chars)
 
     def lstrip(self, chars: Optional[str] = None) -> "String":
+        """Remove characters from the beginning of the string."""
         if chars is None:
             chars = string.whitespace
 
@@ -224,6 +244,7 @@ class String(str):
         return self[start:]
 
     def rstrip(self, chars: Optional[str] = None) -> "String":
+        """Remove characters from the end of the string."""
         if chars is None:
             chars = string.whitespace
 
@@ -243,55 +264,69 @@ class String(str):
         return self.translate(trans)
 
     def swapcase(self) -> "String":
+        """Swap lower-case and upper-case characters."""
         return self._swapcase
 
     def title(self) -> str:
+        """Not currently implemented."""
         raise NotImplementedError
 
     def split(
         self, sep: Optional[str] = None, maxsplit: SupportsIndex = -1
     ) -> List[str]:
+        """Not currently implemented."""
         raise NotImplementedError
 
     def rsplit(
         self, sep: Optional[str] = None, maxsplit: SupportsIndex = -1
     ) -> List[str]:
+        """Not currently implemented."""
         raise NotImplementedError
 
     @property
     def casemap(self) -> Casemap:
-        """Casemap associated with this string"""
+        """Casemap associated with this string."""
         return self._casemap
 
     def __getitem__(self, item: Union[SupportsIndex, slice]) -> "String":
+        """Get substring."""
         return self._wrap(super().__getitem__(item))
 
     def __contains__(self, item: object) -> bool:
+        """Check if `item` is in string case-insensitively."""
         if not isinstance(item, str):
             return False
 
         return self._wrap(item).casefold() in str(self.casefold())
 
     def __add__(self, other: str) -> "String":
+        """Concat a string to this one."""
         return self._wrap(str(self) + other)
 
     def __lt__(self, other: str) -> bool:
+        """Compare another string to this one case-insensitively."""
         return self.__internal_cmp(other, operator.lt)
 
     def __le__(self, other: str) -> bool:
+        """Compare another string to this one case-insensitively."""
         return self.__internal_cmp(other, operator.le)
 
     def __eq__(self, other: object) -> bool:
+        """Compare another string to this one case-insensitively."""
         return self.__internal_cmp(other, operator.eq)
 
     def __ne__(self, other: object) -> bool:
+        """Compare another string to this one case-insensitively."""
         return self.__internal_cmp(other, operator.ne)
 
     def __gt__(self, other: str) -> bool:
+        """Compare another string to this one case-insensitively."""
         return self.__internal_cmp(other, operator.gt)
 
     def __ge__(self, other: str) -> bool:
+        """Compare another string to this one case-insensitively."""
         return self.__internal_cmp(other, operator.ge)
 
     def __hash__(self) -> int:
+        """Hash the lowercase string."""
         return hash(str(self.lower()))

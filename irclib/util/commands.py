@@ -1,4 +1,4 @@
-"""IRC command data and utilities"""
+"""IRC command data and utilities."""
 
 from typing import Iterator, List, Mapping, Optional, cast
 
@@ -9,15 +9,14 @@ __all__ = ("Command", "client_commands")
 
 @attr.s(frozen=True, hash=True, auto_attribs=True)
 class CommandArgument:
-    """A single IRC command argument"""
+    """A single IRC command argument."""
 
     name: str
     required: Optional[bool] = True
 
     @classmethod
     def parse(cls, s: str) -> "CommandArgument":
-        """
-        Parse a CommandArgument from an argument string
+        """Parse a CommandArgument from an argument string.
 
         >>> CommandArgument.parse("[foo]")
         CommandArgument(name='foo', required=False)
@@ -42,7 +41,7 @@ class CommandArgument:
 
 @attr.s(frozen=True, hash=True, auto_attribs=True)
 class Command:
-    """A single IRC command"""
+    """A single IRC command."""
 
     name: str
     args: List[CommandArgument]
@@ -51,7 +50,7 @@ class Command:
 
 
 class LookupDict(Mapping[str, Command]):
-    """Command lookup dictionary"""
+    """Command lookup dictionary."""
 
     def __init__(self, *commands: Command) -> None:
         for command in commands:

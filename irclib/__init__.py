@@ -1,4 +1,4 @@
-"""IRC parser and utility library"""
+"""IRC parser and utility library."""
 
 from irclib._version import (
     __version__,

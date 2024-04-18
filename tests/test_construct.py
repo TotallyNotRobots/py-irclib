@@ -1,12 +1,10 @@
-"""
-Test constructing message objects
-"""
+"""Test constructing message objects."""
 
 from irclib.parser import Message
 
 
 def test_param_construct() -> None:
-    """Test constructing Message objects"""
+    """Test constructing Message objects."""
     msg = Message(None, None, "PRIVMSG", "#channel", "Message thing")
     assert str(msg) == "PRIVMSG #channel :Message thing"
 

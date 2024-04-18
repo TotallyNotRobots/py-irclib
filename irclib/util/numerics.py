@@ -1,4 +1,4 @@
-"""IRC numeric mapping"""
+"""IRC numeric mapping."""
 
 from dataclasses import dataclass
 from typing import Iterator, Mapping
@@ -8,12 +8,14 @@ __all__ = ("Numeric", "numerics")
 
 @dataclass
 class Numeric:
+    """IRC numeric information."""
+
     name: str
     numeric: int
 
 
 class NumericsDict(Mapping[str, Numeric]):
-    """Mapping of IRC numerics"""
+    """Mapping of IRC numerics."""
 
     def __init__(self, *args: Numeric) -> None:
         super().__init__()
@@ -23,7 +25,7 @@ class NumericsDict(Mapping[str, Numeric]):
         self.num_strs = {str(num.numeric).zfill(3): num for num in args}
 
     def from_int(self, n: int) -> Numeric:
-        """Get a numeric by its number"""
+        """Get a numeric by its number."""
         return self.nums[n]
 
     def from_name(self, name: str) -> Numeric:

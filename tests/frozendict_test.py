@@ -1,10 +1,10 @@
-"""Test frozendict util"""
+"""Test frozendict util."""
 
 from irclib.util.frozendict import FrozenDict
 
 
 def test_dict() -> None:
-    """Test basic dict functions"""
+    """Test basic dict functions."""
     fd = FrozenDict(a=1, b=2)
     assert fd["a"] == 1
     assert fd["b"] == 2
@@ -14,7 +14,7 @@ def test_dict() -> None:
 
 
 def test_init_literal() -> None:
-    """Test initializing with a dict literal"""
+    """Test initializing with a dict literal."""
     fd = FrozenDict({"a": 1, "b": 2})
     assert fd["a"] == 1
     assert fd["b"] == 2
@@ -24,7 +24,7 @@ def test_init_literal() -> None:
 
 
 def test_copy() -> None:
-    """Test dict copy"""
+    """Test dict copy."""
     fd = FrozenDict([("a", 1), ("b", 2)])
     fd1 = fd.copy()
     assert len(fd1) == 2
@@ -43,7 +43,7 @@ def test_copy() -> None:
 
 
 def test_hash() -> None:
-    """Test dict hashes"""
+    """Test dict hashes."""
     fd = FrozenDict(a=1, b=2)
     fd1 = FrozenDict({"a": 1, "b": 2})
     assert fd == fd1

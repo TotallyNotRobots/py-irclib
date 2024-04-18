@@ -1,7 +1,6 @@
-"""Frozen Dict"""
+"""Frozen Dict."""
 
 from typing import (
-    Any,
     Dict,
     Iterable,
     Iterator,
@@ -12,13 +11,14 @@ from typing import (
     Union,
 )
 
+from typing_extensions import Self
+
 __all__ = ("FrozenDict",)
 
-V = TypeVar("V", bound=Any)
-SelfT = TypeVar("SelfT", bound="FrozenDict[Any]")
+_V = TypeVar("_V")
 
 
-class FrozenDict(Mapping[str, V]):
+class FrozenDict(Mapping[str, _V]):
     """Frozen Mapping.
 
     An immutable mapping of string -> Any type
@@ -28,15 +28,16 @@ class FrozenDict(Mapping[str, V]):
 
     def __init__(
         self,
-        seq: Union[Mapping[str, V], Iterable[Tuple[str, V]], None] = None,
-        **kwargs: V,
+        seq: Union[Mapping[str, _V], Iterable[Tuple[str, _V]], None] = None,
+        **kwargs: _V,
     ) -> None:
+        """Construct a FrozenDict."""
         d = dict(seq, **kwargs) if seq is not None else dict(**kwargs)
 
-        self.__data: Dict[str, V] = d
+        self.__data: Dict[str, _V] = d
         self.__hash: Optional[int] = None
 
-    def copy(self: SelfT, **kwargs: V) -> SelfT:
+    def copy(self, **kwargs: _V) -> Self:
         """Copy dict, replacing values according to kwargs.
 
         >>> fd = FrozenDict(a=1)
@@ -50,16 +51,20 @@ class FrozenDict(Mapping[str, V]):
         """
         return self.__class__(self.__data, **kwargs)
 
-    def __getitem__(self, k: str) -> V:
+    def __getitem__(self, k: str) -> _V:
+        """Retrieve an item from the dict by key."""
         return self.__data[k]
 
     def __iter__(self) -> Iterator[str]:
+        """Iterate the keys of the dict."""
         return iter(self.__data)
 
     def __len__(self) -> int:
+        """Number of keys in the dict."""
         return len(self.__data)
 
     def __hash__(self) -> int:
+        """Get hash for the dict."""
         if self.__hash is None:
             self.__hash = hash(tuple(self.items()))
 
