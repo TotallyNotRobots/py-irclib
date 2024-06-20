@@ -3,6 +3,7 @@
 Backported from async-irc (https://github.com/snoonetIRC/async-irc.git)
 """
 
+import datetime
 import re
 from abc import ABCMeta, abstractmethod
 from typing import (
@@ -67,6 +68,17 @@ TAG_VALUE_UNESCAPES: Final = {
 }
 
 SelfT = TypeVar("SelfT")
+
+
+def parse_server_time(value: Optional[str]) -> datetime.datetime:
+    if value:
+        ts = datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
+            tzinfo=datetime.timezone.utc
+        )
+    else:
+        ts = datetime.datetime.now(datetime.timezone.utc)
+
+    return ts
 
 
 class Parseable(metaclass=ABCMeta):
@@ -612,6 +624,22 @@ class Message(Parseable):
         self._prefix = _parse_prefix(prefix)
         self._command = command
         self._parameters = _parse_params(parameters)
+
+        self.time = parse_server_time(self.get_tag_value("time"))
+        self.message_id = self.get_tag_value("msgid")
+        self.batch_id = self.get_tag_value("batch")
+
+    def has_tag(self, name: str) -> bool:
+        if not self.tags:
+            return False
+
+        return name in self.tags
+
+    def get_tag_value(self, name: str) -> Optional[str]:
+        if self.tags and name in self.tags:
+            return self.tags[name].value
+
+        return None
 
     @property
     def tags(self) -> MsgTagList:
