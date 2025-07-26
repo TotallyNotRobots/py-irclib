@@ -38,9 +38,6 @@ packages = ["irclib"]
 [tool.hatch.build.hooks.vcs]
 version-file = "irclib/_version.py"
 
-[tool.hatch.env]
-requires = ["hatch-containers"]
-
 [tool.hatch.envs.default]
 dependencies = [
     "coverage[toml]>=6.5",
@@ -51,27 +48,26 @@ dependencies = [
 ]
 
 [tool.hatch.envs.default.scripts]
-test = "pytest"
-test-cov = ["coverage run -pm pytest"]
-cov-report = [
-    "- coverage combine",
-    "coverage xml",
-    "coverage report --show-missing",
-]
-cov = ["- coverage erase", "test-cov", "cov-report"]
-cov-all = ["- coverage erase", "hatch run testall:test-cov", "cov-report"]
-
 setup-pre-commit = "python3 -m pre_commit install --install-hooks -t commit-msg -t pre-push -t pre-commit"
 setup-dev = ["setup-pre-commit"]
 
 pre-commit = "python3 -m pre_commit run {args:--all}"
 
-[tool.hatch.envs.testall]
-type = "container"
-dependencies = ["coverage[toml]>=6.5", "pytest>=6.0", "irc-parser-tests"]
+[tool.hatch.envs.hatch-test]
+default-args = ["tests", "polymatch"]
+extra-args = ["-vv"]
+[tool.hatch.envs.hatch-test.scripts]
+run = "pytest{env:HATCH_TEST_ARGS:} {args}"
+run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
+cov-combine = "coverage combine"
+cov-report = ["coverage report --show-missing --skip-covered", "coverage xml"]
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.13", "3.12", "3.11", "3.10", "3.9"]
 
-[[tool.hatch.envs.testall.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+[tool.hatch.envs.types]
+extra-dependencies = ["mypy>=1.0.0"]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:polymatch tests}"
 
 [tool.isort]
 profile = "black"
