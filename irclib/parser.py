@@ -11,6 +11,7 @@ from typing import (
     Iterable,
     Iterator,
     List,
+    Literal,
     Optional,
     Sequence,
     Tuple,
@@ -305,23 +306,27 @@ class TagList(Parseable, Dict[str, MessageTag]):
         super().__init__((tag.name, tag) for tag in tags)
 
     @staticmethod
-    def _cmp_type_map(obj: object) -> Dict[str, MessageTag]:
+    def _cmp_type_map(
+        obj: object,
+    ) -> Union[
+        Tuple[dict[str, MessageTag], Literal[True]], Tuple[None, Literal[False]]
+    ]:
         if isinstance(obj, str):
-            return TagList.parse(obj)
+            return TagList.parse(obj), True
 
         if isinstance(obj, dict):
             sample = next(iter(obj.values()), None)
             if obj and (sample is None or isinstance(sample, str)):
                 # Handle str -> str dict
-                return TagList.from_dict(obj)
+                return TagList.from_dict(obj), True
 
             # Handle str -> MessageTag dict
-            return dict(obj)
+            return dict(obj), True
 
         if isinstance(obj, list):
-            return TagList(obj)
+            return TagList(obj), True
 
-        return NotImplemented
+        return None, False
 
     @classmethod
     def parse(cls, text: str) -> Self:
@@ -339,19 +344,19 @@ class TagList(Parseable, Dict[str, MessageTag]):
 
     def __eq__(self, other: object) -> bool:
         """Compare to another tag list, string, or list of MessageTag objects."""
-        obj = self._cmp_type_map(other)
-        if obj is NotImplemented:
+        res = self._cmp_type_map(other)
+        if not res[1]:
             return NotImplemented
 
-        return dict(self) == dict(obj)
+        return dict(self) == dict(res[0])
 
     def __ne__(self, other: object) -> bool:
         """Compare to another tag list, string, or list of MessageTag objects."""
-        obj = self._cmp_type_map(other)
-        if obj is NotImplemented:
+        res = self._cmp_type_map(other)
+        if not res[1]:
             return NotImplemented
 
-        return dict(self) != dict(obj)
+        return dict(self) != dict(res[0])
 
     def __str__(self) -> str:
         """Represent the tag list as a string."""

@@ -7,6 +7,7 @@ from typing import (
     Dict,
     Final,
     List,
+    Literal,
     NamedTuple,
     Optional,
     Protocol,
@@ -75,14 +76,14 @@ class String(str):
 
     def __internal_cmp(
         self, other: object, cmp: Callable[[str, str], bool]
-    ) -> bool:
+    ) -> Union[Tuple[bool, Literal[True]], Tuple[None, Literal[False]]]:
         if isinstance(other, String):
-            return cmp(str(self.casefold()), str(other.casefold()))
+            return cmp(str(self.casefold()), str(other.casefold())), True
 
         if isinstance(other, str):
-            return cmp(self, self._wrap(other))
+            return cmp(self, self._wrap(other)), True
 
-        return NotImplemented
+        return None, False
 
     def translate(self, table: TranslateTable) -> "String":
         """Apply translation table to string."""
@@ -305,27 +306,51 @@ class String(str):
 
     def __lt__(self, other: str) -> bool:
         """Compare another string to this one case-insensitively."""
-        return self.__internal_cmp(other, operator.lt)
+        res = self.__internal_cmp(other, operator.lt)
+        if not res[1]:
+            return NotImplemented
+
+        return res[0]
 
     def __le__(self, other: str) -> bool:
         """Compare another string to this one case-insensitively."""
-        return self.__internal_cmp(other, operator.le)
+        res = self.__internal_cmp(other, operator.le)
+        if not res[1]:
+            return NotImplemented
+
+        return res[0]
 
     def __eq__(self, other: object) -> bool:
         """Compare another string to this one case-insensitively."""
-        return self.__internal_cmp(other, operator.eq)
+        res = self.__internal_cmp(other, operator.eq)
+        if not res[1]:
+            return NotImplemented
+
+        return res[0]
 
     def __ne__(self, other: object) -> bool:
         """Compare another string to this one case-insensitively."""
-        return self.__internal_cmp(other, operator.ne)
+        res = self.__internal_cmp(other, operator.ne)
+        if not res[1]:
+            return NotImplemented
+
+        return res[0]
 
     def __gt__(self, other: str) -> bool:
         """Compare another string to this one case-insensitively."""
-        return self.__internal_cmp(other, operator.gt)
+        res = self.__internal_cmp(other, operator.gt)
+        if not res[1]:
+            return NotImplemented
+
+        return res[0]
 
     def __ge__(self, other: str) -> bool:
         """Compare another string to this one case-insensitively."""
-        return self.__internal_cmp(other, operator.ge)
+        res = self.__internal_cmp(other, operator.ge)
+        if not res[1]:
+            return NotImplemented
+
+        return res[0]
 
     def __hash__(self) -> int:
         """Hash the lowercase string."""
