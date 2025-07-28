@@ -45,16 +45,15 @@ dependencies = [
     "irc-parser-tests",
     "pre-commit",
     "mypy>=1.8",
+    "ruamel.yaml",
 ]
 
 [tool.hatch.envs.default.scripts]
-setup-pre-commit = "python3 -m pre_commit install --install-hooks -t commit-msg -t pre-push -t pre-commit"
-setup-dev = ["setup-pre-commit"]
-
-pre-commit = "python3 -m pre_commit run {args:--all}"
+setup-dev = ["hatch run pre-commit install"]
+fix-pre-commit = ["hatch run python3 -m scripts.fix_pre_commit"]
 
 [tool.hatch.envs.hatch-test]
-default-args = ["tests", "polymatch"]
+default-args = ["tests", "irclib"]
 extra-args = ["-vv"]
 [tool.hatch.envs.hatch-test.scripts]
 run = "pytest{env:HATCH_TEST_ARGS:} {args}"
@@ -67,7 +66,7 @@ python = ["3.13", "3.12", "3.11", "3.10", "3.9"]
 [tool.hatch.envs.types]
 extra-dependencies = ["mypy>=1.0.0"]
 [tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:polymatch tests}"
+check = "mypy --install-types --non-interactive {args:irclib tests}"
 
 [tool.isort]
 profile = "black"
@@ -141,6 +140,7 @@ convention = "google"
 aggressive = true
 transform-joins = true
 transform-concats = true
+line-length = 120
 
 [tool.mypy]
 namespace_packages = true
@@ -171,6 +171,7 @@ enable_error_code = [
     "truthy-iterable",
     "ignore-without-code",
 ]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -198,3 +199,9 @@ version_scheme = "semver"
 version_provider = "scm"
 update_changelog_on_bump = true
 major_version_zero = true
+
+[tool.nitpick]
+style = ["gh://TotallyNotRobots/nitpick/lib-style-3.8.toml"]
+
+[tool.check-spdx-header]
+headers = ["2017-present linuxdaemon <linuxdaemon.irc@gmail.com>"]
