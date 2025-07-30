@@ -10,8 +10,8 @@ def test_command_lookup() -> None:
     """Test looking up a command."""
     pm = commands.client_commands["privmsg"]
     assert pm is commands.client_commands["PRIVMSG"]
-    assert pm is commands.client_commands.privmsg
-    assert pm is commands.client_commands.PRIVMSG
+    assert pm is commands.client_commands.privmsg  # type: ignore[attr-defined]
+    assert pm is commands.client_commands.PRIVMSG  # type: ignore[attr-defined]
 
     with pytest.raises(KeyError):
         _ = commands.client_commands["foo"]

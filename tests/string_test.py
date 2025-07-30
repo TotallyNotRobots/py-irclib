@@ -143,7 +143,7 @@ def test_contains() -> None:
     """Test `in` operator."""
     assert "a" in String("abc")
     assert String("a") in String("abc")
-    assert 445 not in String("abc")
+    assert 445 not in String("abc")  # type: ignore[comparison-overlap]
 
 
 def test_instance() -> None:

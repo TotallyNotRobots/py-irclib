@@ -312,12 +312,12 @@ class TestMessageTag:
     @pytest.mark.parametrize(("name", "value"), [("a", None), ("a", "b")])
     def test_eq(self, name: str, value: Optional[str]) -> None:
         """Test equals."""
-        assert MessageTag(name, value) == MessageTag(name, value)
+        assert MessageTag(name, value) == MessageTag(name, value)  # type: ignore[arg-type]
 
     @pytest.mark.parametrize(("name", "value"), [("a", None), ("a", "b")])
     def test_ne(self, name: str, value: Optional[str]) -> None:
         """Test not-equals."""
-        b = MessageTag(name, value) != MessageTag(name, value)
+        b = MessageTag(name, value) != MessageTag(name, value)  # type: ignore[arg-type]
         assert not b
 
     @pytest.mark.parametrize(
@@ -326,8 +326,8 @@ class TestMessageTag:
     )
     def test_eq_str(self, name: str, value: Optional[str], text: str) -> None:
         """Test equals string."""
-        assert MessageTag(name, value) == text
-        assert text == MessageTag(name, value)
+        assert MessageTag(name, value) == text  # type: ignore[arg-type]
+        assert text == MessageTag(name, value)  # type: ignore[arg-type]
 
     @pytest.mark.parametrize(
         ("name", "value", "text"),
@@ -335,9 +335,9 @@ class TestMessageTag:
     )
     def test_ne_str(self, name: str, value: Optional[str], text: str) -> None:
         """Test not-equals string."""
-        b = MessageTag(name, value) != text
+        b = MessageTag(name, value) != text  # type: ignore[arg-type]
         assert not b
-        b1 = text != MessageTag(name, value)
+        b1 = text != MessageTag(name, value)  # type: ignore[arg-type]
         assert not b1
 
     @pytest.mark.parametrize(
@@ -732,12 +732,12 @@ class TestMessage:
     @pytest.mark.parametrize(
         ("obj", "text"),
         [
-            (Message(None, None, None), ""),
-            (Message(None, None, None, None), ""),
-            (Message(None, None, None, []), ""),
+            (Message(None, None, None), ""),  # type: ignore[arg-type]
+            (Message(None, None, None, None), ""),  # type: ignore[arg-type]
+            (Message(None, None, None, []), ""),  # type: ignore[arg-type]
             (Message(None, None, "COMMAND"), "COMMAND"),
             (Message(["a=b"], None, "COMMAND"), "@a=b COMMAND"),
-            (Message([MessageTag("a", "b")], None, "COMMAND"), "@a=b COMMAND"),
+            (Message([MessageTag("a", "b")], None, "COMMAND"), "@a=b COMMAND"),  # type: ignore[list-item]
             (Message({"a": "b"}, None, "COMMAND"), "@a=b COMMAND"),
             (Message({"a": "b"}, "nick", "COMMAND"), "@a=b :nick COMMAND"),
             (Message(None, ("nick",), "COMMAND"), ":nick COMMAND"),
@@ -813,7 +813,7 @@ class TestMessage:
     @pytest.mark.parametrize(
         "obj",
         [
-            Message(None, None, None),
+            Message(None, None, None),  # type: ignore[arg-type]
             Message(None, None, ""),
             Message(None, "", ""),
             Message("", "", ""),
@@ -861,8 +861,8 @@ def test_trail() -> None:
 )
 def test_comparisons(parse_type: Type[Parseable], text: str) -> None:
     """Test comparing parsed objects to strings."""
-    assert text == parse_type.parse(text)
-    assert not text != parse_type.parse(text)
+    assert text == parse_type.parse(text)  # type: ignore[comparison-overlap]
+    assert not text != parse_type.parse(text)  # type: ignore[comparison-overlap]
 
 
 @pytest.mark.parametrize("data", parser_tests.data.msg_split["tests"])
@@ -912,7 +912,7 @@ def test_msg_join(data: MsgJoinCase) -> None:
     msg = Message(
         atoms.get("tags", None),
         atoms.get("source", None),
-        atoms.get("verb", None),
+        atoms.get("verb", None),  # type: ignore[arg-type]
         atoms.get("params", []),
     )
 
