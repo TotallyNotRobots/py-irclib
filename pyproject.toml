@@ -54,7 +54,9 @@ fix-pre-commit = ["hatch run python3 -m scripts.fix_pre_commit"]
 [tool.hatch.envs.hatch-test]
 default-args = ["tests", "irclib"]
 extra-args = ["-vv"]
-dependencies = [
+extra-dependencies = [
+    "coverage[toml]>=6.5",
+    "pytest>=6.0",
     "irc-parser-tests",
 ]
 
