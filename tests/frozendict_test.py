@@ -25,7 +25,7 @@ def test_init_literal() -> None:
 
 def test_copy() -> None:
     """Test dict copy."""
-    fd = FrozenDict([("a", 1), ("b", 2)])
+    fd: FrozenDict[int] = FrozenDict([("a", 1), ("b", 2)])
     fd1 = fd.copy()
     assert len(fd1) == 2
     assert fd1["a"] == 1

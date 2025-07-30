@@ -7,6 +7,7 @@ from typing import (
     Dict,
     Final,
     List,
+    Literal,
     NamedTuple,
     Optional,
     Protocol,
@@ -28,12 +29,12 @@ class Casemap(NamedTuple):
     upper: str
 
     @property
-    def lower_table(self) -> Dict[int, int]:
+    def lower_table(self) -> dict[int, int]:
         """The lower->upper translation table."""
         return str.maketrans(self.lower, self.upper)
 
     @property
-    def upper_table(self) -> Dict[int, int]:
+    def upper_table(self) -> dict[int, int]:
         """The upper->lower table."""
         return str.maketrans(self.upper, self.lower)
 
@@ -75,14 +76,14 @@ class String(str):
 
     def __internal_cmp(
         self, other: object, cmp: Callable[[str, str], bool]
-    ) -> bool:
+    ) -> Union[tuple[bool, Literal[True]], tuple[None, Literal[False]]]:
         if isinstance(other, String):
-            return cmp(str(self.casefold()), str(other.casefold()))
+            return cmp(str(self.casefold()), str(other.casefold())), True
 
         if isinstance(other, str):
-            return cmp(self, self._wrap(other))
+            return cmp(self, self._wrap(other)), True
 
-        return NotImplemented
+        return None, False
 
     def translate(self, table: TranslateTable) -> "String":
         """Apply translation table to string."""
@@ -136,12 +137,12 @@ class String(str):
 
     def startswith(
         self,
-        prefix: Union[str, Tuple[str, ...]],
+        prefix: Union[str, tuple[str, ...]],
         start: Optional[SupportsIndex] = None,
         end: Optional[SupportsIndex] = None,
     ) -> bool:
         """Check if string starts with a prefix."""
-        prefix_list: Tuple[str, ...]
+        prefix_list: tuple[str, ...]
         prefix_list = (prefix,) if isinstance(prefix, str) else prefix
 
         mapped_list = tuple(self._wrap(p).casefold() for p in prefix_list)
@@ -150,12 +151,12 @@ class String(str):
 
     def endswith(
         self,
-        suffix: Union[str, Tuple[str, ...]],
+        suffix: Union[str, tuple[str, ...]],
         start: Optional[SupportsIndex] = None,
         end: Optional[SupportsIndex] = None,
     ) -> bool:
         """Check if string ends with a suffix."""
-        suffix_list: Tuple[str, ...]
+        suffix_list: tuple[str, ...]
         suffix_list = (suffix,) if isinstance(suffix, str) else suffix
 
         mapped_list = tuple(self._wrap(p).casefold() for p in suffix_list)
@@ -204,7 +205,7 @@ class String(str):
             self._wrap(sub).casefold(), start, end
         )
 
-    def partition(self, sep: str) -> Tuple["String", "String", "String"]:
+    def partition(self, sep: str) -> tuple["String", "String", "String"]:
         """Partition string on a separator."""
         pos = self.find(sep)
         if pos < 0:
@@ -212,7 +213,7 @@ class String(str):
 
         return self[:pos], self[pos : pos + len(sep)], self[pos + len(sep) :]
 
-    def rpartition(self, sep: str) -> Tuple["String", "String", "String"]:
+    def rpartition(self, sep: str) -> tuple["String", "String", "String"]:
         """Reverse partition a string on a separator."""
         pos = self.rfind(sep)
         if pos < 0:
@@ -273,13 +274,13 @@ class String(str):
 
     def split(
         self, sep: Optional[str] = None, maxsplit: SupportsIndex = -1
-    ) -> List[str]:
+    ) -> list[str]:
         """Not currently implemented."""
         raise NotImplementedError
 
     def rsplit(
         self, sep: Optional[str] = None, maxsplit: SupportsIndex = -1
-    ) -> List[str]:
+    ) -> list[str]:
         """Not currently implemented."""
         raise NotImplementedError
 
@@ -305,27 +306,51 @@ class String(str):
 
     def __lt__(self, other: str) -> bool:
         """Compare another string to this one case-insensitively."""
-        return self.__internal_cmp(other, operator.lt)
+        res = self.__internal_cmp(other, operator.lt)
+        if not res[1]:
+            return NotImplemented
+
+        return res[0]
 
     def __le__(self, other: str) -> bool:
         """Compare another string to this one case-insensitively."""
-        return self.__internal_cmp(other, operator.le)
+        res = self.__internal_cmp(other, operator.le)
+        if not res[1]:
+            return NotImplemented
+
+        return res[0]
 
     def __eq__(self, other: object) -> bool:
         """Compare another string to this one case-insensitively."""
-        return self.__internal_cmp(other, operator.eq)
+        res = self.__internal_cmp(other, operator.eq)
+        if not res[1]:
+            return NotImplemented
+
+        return res[0]
 
     def __ne__(self, other: object) -> bool:
         """Compare another string to this one case-insensitively."""
-        return self.__internal_cmp(other, operator.ne)
+        res = self.__internal_cmp(other, operator.ne)
+        if not res[1]:
+            return NotImplemented
+
+        return res[0]
 
     def __gt__(self, other: str) -> bool:
         """Compare another string to this one case-insensitively."""
-        return self.__internal_cmp(other, operator.gt)
+        res = self.__internal_cmp(other, operator.gt)
+        if not res[1]:
+            return NotImplemented
+
+        return res[0]
 
     def __ge__(self, other: str) -> bool:
         """Compare another string to this one case-insensitively."""
-        return self.__internal_cmp(other, operator.ge)
+        res = self.__internal_cmp(other, operator.ge)
+        if not res[1]:
+            return NotImplemented
+
+        return res[0]
 
     def __hash__(self) -> int:
         """Hash the lowercase string."""

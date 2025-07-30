@@ -21,7 +21,6 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - '3.8'
           - '3.9'
           - '3.10'
           - '3.11'
@@ -47,4 +46,4 @@ jobs:
         SKIP: nitpick
 
     - name: Run tests
-      run: hatch test --python ${{ matrix.python-version }} --cover --randomize --parallel --retries 2 --retry-delay 1
+      run: hatch test --python ${{ matrix.python-version }} --cover --randomize --retries 2 --retry-delay 1

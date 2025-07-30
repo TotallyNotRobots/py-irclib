@@ -5,14 +5,13 @@ Backported from async-irc (https://github.com/snoonetIRC/async-irc.git)
 
 import re
 from abc import ABCMeta, abstractmethod
+from collections.abc import Iterable, Iterator, Sequence
 from typing import (
     Dict,
     Final,
-    Iterable,
-    Iterator,
     List,
+    Literal,
     Optional,
-    Sequence,
     Tuple,
     TypeVar,
     Union,
@@ -34,7 +33,7 @@ __all__ = (
 )
 MsgTagList: TypeAlias = Optional["TagList"]
 MsgPrefix: TypeAlias = Optional["Prefix"]
-MessageTuple: TypeAlias = Tuple[MsgTagList, MsgPrefix, str, "ParamList"]
+MessageTuple: TypeAlias = tuple[MsgTagList, MsgPrefix, str, "ParamList"]
 
 TAGS_SENTINEL: Final = "@"
 TAGS_SEP: Final = ";"
@@ -106,7 +105,7 @@ class Cap(Parseable):
         """CAP value."""
         return self._value
 
-    def as_tuple(self) -> Tuple[str, Optional[str]]:
+    def as_tuple(self) -> tuple[str, Optional[str]]:
         """Get data as a tuple of values."""
         return self.name, self.value
 
@@ -144,7 +143,7 @@ class Cap(Parseable):
         return self.name
 
 
-class CapList(Parseable, List[Cap]):
+class CapList(Parseable, list[Cap]):
     """Represents a list of CAP entities."""
 
     @classmethod
@@ -293,7 +292,7 @@ class MessageTag(Parseable):
         return self.name
 
 
-class TagList(Parseable, Dict[str, MessageTag]):
+class TagList(Parseable, dict[str, MessageTag]):
     """Object representing the list of message tags on a line."""
 
     def __init__(self, tags: Iterable[MessageTag] = ()) -> None:
@@ -305,23 +304,27 @@ class TagList(Parseable, Dict[str, MessageTag]):
         super().__init__((tag.name, tag) for tag in tags)
 
     @staticmethod
-    def _cmp_type_map(obj: object) -> Dict[str, MessageTag]:
+    def _cmp_type_map(
+        obj: object,
+    ) -> Union[
+        tuple[dict[str, MessageTag], Literal[True]], tuple[None, Literal[False]]
+    ]:
         if isinstance(obj, str):
-            return TagList.parse(obj)
+            return TagList.parse(obj), True
 
         if isinstance(obj, dict):
             sample = next(iter(obj.values()), None)
             if obj and (sample is None or isinstance(sample, str)):
                 # Handle str -> str dict
-                return TagList.from_dict(obj)
+                return TagList.from_dict(obj), True
 
             # Handle str -> MessageTag dict
-            return dict(obj)
+            return dict(obj), True
 
         if isinstance(obj, list):
-            return TagList(obj)
+            return TagList(obj), True
 
-        return NotImplemented
+        return None, False
 
     @classmethod
     def parse(cls, text: str) -> Self:
@@ -333,25 +336,25 @@ class TagList(Parseable, Dict[str, MessageTag]):
         return cls(map(MessageTag.parse, filter(None, text.split(TAGS_SEP))))
 
     @classmethod
-    def from_dict(cls, tags: Dict[str, str]) -> Self:
+    def from_dict(cls, tags: dict[str, str]) -> Self:
         """Create a TagList from a dict of tags."""
         return cls(MessageTag(k, v) for k, v in tags.items())
 
     def __eq__(self, other: object) -> bool:
         """Compare to another tag list, string, or list of MessageTag objects."""
-        obj = self._cmp_type_map(other)
-        if obj is NotImplemented:
+        res = self._cmp_type_map(other)
+        if not res[1]:
             return NotImplemented
 
-        return dict(self) == dict(obj)
+        return dict(self) == dict(res[0])
 
     def __ne__(self, other: object) -> bool:
         """Compare to another tag list, string, or list of MessageTag objects."""
-        obj = self._cmp_type_map(other)
-        if obj is NotImplemented:
+        res = self._cmp_type_map(other)
+        if not res[1]:
             return NotImplemented
 
-        return dict(self) != dict(obj)
+        return dict(self) != dict(res[0])
 
     def __str__(self) -> str:
         """Represent the tag list as a string."""
@@ -405,7 +408,7 @@ class Prefix(Parseable):
         return mask
 
     @property
-    def _data(self) -> Tuple[str, str, str]:
+    def _data(self) -> tuple[str, str, str]:
         return self.nick, self.user, self.host
 
     @classmethod
@@ -463,7 +466,7 @@ class Prefix(Parseable):
         return self.mask
 
 
-class ParamList(Parseable, List[str]):
+class ParamList(Parseable, list[str]):
     """An object representing the parameter list from a line."""
 
     def __init__(self, *params: str, has_trail: bool = False) -> None:
@@ -554,13 +557,13 @@ class ParamList(Parseable, List[str]):
 
 
 def _parse_tags(
-    tags: Union[TagList, Dict[str, str], str, None, List[str]],
+    tags: Union[TagList, dict[str, str], str, None, list[str]],
 ) -> MsgTagList:
     if isinstance(tags, TagList):
         return tags
 
     if isinstance(tags, dict):
-        return TagList.from_dict(cast(Dict[str, str], tags))
+        return TagList.from_dict(cast(dict[str, str], tags))
 
     if isinstance(tags, str):
         return TagList.parse(tags)
@@ -585,7 +588,7 @@ def _parse_prefix(prefix: Union[Prefix, str, None, Iterable[str]]) -> MsgPrefix:
 
 
 def _parse_params(
-    parameters: Tuple[Union[str, List[str], ParamList], ...],
+    parameters: tuple[Union[str, list[str], ParamList], ...],
 ) -> ParamList:
     if len(parameters) == 1 and not isinstance(parameters[0], str):
         # This seems to be a list
@@ -594,7 +597,7 @@ def _parse_params(
 
         return ParamList.from_list(parameters[0])
 
-    return ParamList.from_list(cast(Tuple[str, ...], parameters))
+    return ParamList.from_list(cast(tuple[str, ...], parameters))
 
 
 class Message(Parseable):
@@ -602,10 +605,10 @@ class Message(Parseable):
 
     def __init__(
         self,
-        tags: Union[TagList, Dict[str, str], str, None, List[str]],
+        tags: Union[TagList, dict[str, str], str, None, list[str]],
         prefix: Union[str, Prefix, None, Iterable[str]],
         command: str,
-        *parameters: Union[str, List[str], ParamList],
+        *parameters: Union[str, list[str], ParamList],
     ) -> None:
         """Construct message object."""
         self._tags = _parse_tags(tags)

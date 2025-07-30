@@ -1,6 +1,7 @@
 """IRC command data and utilities."""
 
-from typing import Iterator, List, Mapping, Optional, cast
+from collections.abc import Iterator, Mapping
+from typing import List, Optional, cast
 
 import attr
 
@@ -44,7 +45,7 @@ class Command:
     """A single IRC command."""
 
     name: str
-    args: List[CommandArgument]
+    args: list[CommandArgument]
     min_args: int = 0
     max_args: Optional[int] = None
 

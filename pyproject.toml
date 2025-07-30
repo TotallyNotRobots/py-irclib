@@ -8,14 +8,13 @@ dynamic = ["version"]
 description = "A simple library for working with the IRC protocol"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 authors = [{ name = "linuxdaemon", email = "linuxdaemon.irc@gmail.com" }]
 keywords = ["irc", "irc-parser"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -55,6 +54,12 @@ fix-pre-commit = ["hatch run python3 -m scripts.fix_pre_commit"]
 [tool.hatch.envs.hatch-test]
 default-args = ["tests", "irclib"]
 extra-args = ["-vv"]
+extra-dependencies = [
+    "coverage[toml]>=6.5",
+    "pytest>=6.0",
+    "irc-parser-tests",
+]
+
 [tool.hatch.envs.hatch-test.scripts]
 run = "pytest{env:HATCH_TEST_ARGS:} {args}"
 run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
@@ -78,12 +83,12 @@ float_to_top = true
 
 [tool.black]
 line-length = 80
-target-version = ["py38"]
+target-version = ["py39"]
 include = '\.pyi?$'
 
 [tool.ruff]
 line-length = 80
-target-version = 'py38'
+target-version = 'py39'
 
 [tool.ruff.format]
 docstring-code-format = true
@@ -144,9 +149,10 @@ line-length = 120
 
 [tool.mypy]
 namespace_packages = true
-python_version = "3.8"
+python_version = "3.9"
 warn_unused_configs = true
 strict = true
+strict_bytes = false
 strict_optional = true
 check_untyped_defs = true
 show_error_codes = true
@@ -162,7 +168,6 @@ extra_checks = true
 warn_unreachable = true
 warn_return_any = true
 warn_no_return = true
-incremental = false
 enable_error_code = [
     "redundant-self",
     "redundant-expr",
@@ -201,7 +206,7 @@ update_changelog_on_bump = true
 major_version_zero = true
 
 [tool.nitpick]
-style = ["gh://TotallyNotRobots/nitpick/lib-style-3.8.toml"]
+style = ["gh://TotallyNotRobots/nitpick/lib-style-3.9.toml"]
 
 [tool.check-spdx-header]
 headers = ["2017-present linuxdaemon <linuxdaemon.irc@gmail.com>"]
