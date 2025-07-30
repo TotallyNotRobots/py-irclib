@@ -1,7 +1,7 @@
 """IRC numeric mapping."""
 
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
-from typing import Iterator, Mapping
 
 __all__ = ("Numeric", "numerics")
 

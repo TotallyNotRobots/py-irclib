@@ -21,10 +21,10 @@ from irclib.util.string import ASCII, String
 class MsgAtoms(TypedDict):
     """Message components for test cases."""
 
-    tags: Dict[str, str]
+    tags: dict[str, str]
     source: str
     verb: str
-    params: List[str]
+    params: list[str]
 
 
 class MsgSplitCase(TypedDict):
@@ -53,7 +53,7 @@ class MsgJoinCase(TypedDict):
     """Message construction test case data."""
 
     atoms: MsgAtoms
-    matches: List[str]
+    matches: list[str]
 
 
 def test_line() -> None:
@@ -213,7 +213,7 @@ class TestCapList:
         ],
     )
     def test_parse(
-        self, text: str, expected: Tuple[Tuple[str, Optional[str]], ...]
+        self, text: str, expected: tuple[tuple[str, Optional[str]], ...]
     ) -> None:
         """Test string parsing."""
         parsed = CapList.parse(text)
@@ -223,13 +223,13 @@ class TestCapList:
             assert actual.value == value
 
     @pytest.mark.parametrize("caps", [[], [Cap("a"), Cap("b", "c")]])
-    def test_eq_list(self, caps: List[Cap]) -> None:
+    def test_eq_list(self, caps: list[Cap]) -> None:
         """Test equals list."""
         assert CapList(caps) == caps
         assert caps == CapList(caps)
 
     @pytest.mark.parametrize("caps", [[], [Cap("a"), Cap("b", "c")]])
-    def test_ne_list(self, caps: List[Cap]) -> None:
+    def test_ne_list(self, caps: list[Cap]) -> None:
         """Test not-equals list."""
         b = CapList(caps) != caps
         assert not b
@@ -244,7 +244,7 @@ class TestCapList:
             ([Cap("a"), Cap("b", "c")], "a b=c "),
         ],
     )
-    def test_eq_str(self, caps: List[Cap], text: str) -> None:
+    def test_eq_str(self, caps: list[Cap], text: str) -> None:
         """Test equals strings."""
         assert CapList(caps) == text
         assert text == CapList(caps)
@@ -257,7 +257,7 @@ class TestCapList:
             ([Cap("a"), Cap("b", "c")], "a b=c "),
         ],
     )
-    def test_ne_str(self, caps: List[Cap], text: str) -> None:
+    def test_ne_str(self, caps: list[Cap], text: str) -> None:
         """Test not-equals strings."""
         b = CapList(caps) != text
         assert not b
@@ -367,7 +367,7 @@ class TestTagList:
             (r"a=ab\r\s\n\:\\;b=abc", [("a", "ab\r \n;\\"), ("b", "abc")]),
         ],
     )
-    def test_parse(self, text: str, tags: List[Tuple[str, str]]) -> None:
+    def test_parse(self, text: str, tags: list[tuple[str, str]]) -> None:
         """Test parsing from string."""
         tag_list = TagList.parse(text)
 
@@ -381,14 +381,14 @@ class TestTagList:
     @pytest.mark.parametrize(
         "tags", [[], [MessageTag("a")], [MessageTag("b", "c")]]
     )
-    def test_eq(self, tags: List[MessageTag]) -> None:
+    def test_eq(self, tags: list[MessageTag]) -> None:
         """Test equals."""
         assert TagList(tags) == TagList(tags)
 
     @pytest.mark.parametrize(
         "tags", [[], [MessageTag("a")], [MessageTag("b", "c")]]
     )
-    def test_ne(self, tags: List[MessageTag]) -> None:
+    def test_ne(self, tags: list[MessageTag]) -> None:
         """Test not-equals."""
         b = TagList(tags) != TagList(tags)
         assert not b
@@ -396,7 +396,7 @@ class TestTagList:
     @pytest.mark.parametrize(
         "tags", [[], [MessageTag("a")], [MessageTag("b", "c")]]
     )
-    def test_eq_list(self, tags: List[MessageTag]) -> None:
+    def test_eq_list(self, tags: list[MessageTag]) -> None:
         """Test equals list."""
         assert TagList(tags) == tags
         assert tags == TagList(tags)
@@ -404,7 +404,7 @@ class TestTagList:
     @pytest.mark.parametrize(
         "tags", [[], [MessageTag("a")], [MessageTag("b", "c")]]
     )
-    def test_ne_list(self, tags: List[MessageTag]) -> None:
+    def test_ne_list(self, tags: list[MessageTag]) -> None:
         """Test not-equals list."""
         b = TagList(tags) != tags
         assert not b
@@ -420,7 +420,7 @@ class TestTagList:
         ],
     )
     def test_eq_dict(
-        self, obj: TagList, other: Dict[str, Optional[str]]
+        self, obj: TagList, other: dict[str, Optional[str]]
     ) -> None:
         """Test equals dict."""
         assert obj == other
@@ -435,7 +435,7 @@ class TestTagList:
         ],
     )
     def test_ne_dict(
-        self, obj: TagList, other: Dict[str, Optional[str]]
+        self, obj: TagList, other: dict[str, Optional[str]]
     ) -> None:
         """Test not-equals dict."""
         b = obj != other
@@ -447,7 +447,7 @@ class TestTagList:
         ("tags", "text"),
         [([], ""), ([MessageTag("a")], "a"), ([MessageTag("b", "c")], "b=c")],
     )
-    def test_eq_str(self, tags: List[MessageTag], text: str) -> None:
+    def test_eq_str(self, tags: list[MessageTag], text: str) -> None:
         """Test equals strings."""
         assert TagList(tags) == text
         assert text == TagList(tags)
@@ -456,7 +456,7 @@ class TestTagList:
         ("tags", "text"),
         [([], ""), ([MessageTag("a")], "a"), ([MessageTag("b", "c")], "b=c")],
     )
-    def test_ne_str(self, tags: List[MessageTag], text: str) -> None:
+    def test_ne_str(self, tags: list[MessageTag], text: str) -> None:
         """Test not-equals strings."""
         b = TagList(tags) != text
         assert not b
@@ -681,7 +681,7 @@ class TestParamList:
         "params",
         [[], [""], ["a"], ["a", "b"], ["a", ":b"], ["a", "b "], ["a", ""]],
     )
-    def test_eq(self, params: List[str]) -> None:
+    def test_eq(self, params: list[str]) -> None:
         """Test equals."""
         assert ParamList(*params) == ParamList(*params)
         assert ParamList(*params) == ParamList.from_list(params)
@@ -691,7 +691,7 @@ class TestParamList:
         "params",
         [[], [""], ["a"], ["a", "b"], ["a", ":b"], ["a", "b "], ["a", ""]],
     )
-    def test_ne(self, params: List[str]) -> None:
+    def test_ne(self, params: list[str]) -> None:
         """Test not-equals."""
         b = ParamList(*params) != ParamList(*params)
         assert not b
@@ -765,7 +765,7 @@ class TestMessage:
         tags: Optional[str],
         prefix: Optional[str],
         command: str,
-        params: List[str],
+        params: list[str],
     ) -> None:
         """Test equals."""
         assert Message(tags, prefix, command, params) == Message(
@@ -781,7 +781,7 @@ class TestMessage:
         tags: Optional[str],
         prefix: Optional[str],
         command: str,
-        params: List[str],
+        params: list[str],
     ) -> None:
         """Test not-equals."""
         b = Message(tags, prefix, command, params) != Message(
@@ -859,7 +859,7 @@ def test_trail() -> None:
         (Message, "command"),
     ],
 )
-def test_comparisons(parse_type: Type[Parseable], text: str) -> None:
+def test_comparisons(parse_type: type[Parseable], text: str) -> None:
     """Test comparing parsed objects to strings."""
     assert text == parse_type.parse(text)  # type: ignore[comparison-overlap]
     assert not text != parse_type.parse(text)  # type: ignore[comparison-overlap]

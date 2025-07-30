@@ -12,8 +12,8 @@ class MaskCase(TypedDict):
     """Mask match test case data."""
 
     mask: str
-    matches: List[str]
-    fails: List[str]
+    matches: list[str]
+    fails: list[str]
 
 
 @pytest.mark.parametrize("data", parser_tests.data.mask_match["tests"])
