@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b  # frozen: v5.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:
       - id: trailing-whitespace
         args:
@@ -50,7 +50,7 @@ repos:
       - id: python-no-eval
       - id: python-no-log-warn
   - repo: https://github.com/ikamensh/flynt
-    rev: b6179c10e744b641f5f180cfc40e95c90a8ad18c  # frozen: 1.0.4
+    rev: 97be693bf18bc2f050667dd282d243e2824b81e2  # frozen: 1.0.6
     hooks:
       - id: flynt
   - repo: https://github.com/asottile/pyupgrade
