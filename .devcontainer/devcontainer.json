@@ -19,7 +19,7 @@
     // "forwardPorts": [],
 
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "hatch run setup-dev",
+    "postCreateCommand": "hatch run python --version",
     // Configure tool-specific properties.
     // "customizations": {},
 

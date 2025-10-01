@@ -46,9 +46,11 @@ dependencies = [
     "mypy>=1.8",
     "ruamel.yaml",
 ]
+post-install-commands = [
+    "hatch run pre-commit install -f"
+]
 
 [tool.hatch.envs.default.scripts]
-setup-dev = ["hatch run pre-commit install"]
 fix-pre-commit = ["hatch run python3 -m scripts.fix_pre_commit"]
 
 [tool.hatch.envs.hatch-test]
