@@ -20,7 +20,10 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-dependencies = ["attrs>=20.3.0", "typing_extensions"]
+dependencies = [
+    "attrs~=20.3.0",
+    "typing_extensions~=4.12.2",
+]
 
 [project.urls]
 Homepage = "https://github.com/TotallyNotRobots/py-irclib"
@@ -39,12 +42,12 @@ version-file = "irclib/_version.py"
 
 [tool.hatch.envs.default]
 dependencies = [
-    "coverage[toml]>=6.5",
-    "pytest>=6.0",
+    "coverage[toml]~=6.5",
+    "pytest~=6.0",
     "irc-parser-tests",
-    "pre-commit",
-    "mypy>=1.8",
-    "ruamel.yaml",
+    "pre-commit~=4.3.0",
+    "mypy~=1.8",
+    "ruamel.yaml~=0.18.15",
 ]
 post-install-commands = [
     "hatch run pre-commit install -f"
@@ -57,8 +60,8 @@ fix-pre-commit = ["hatch run python3 -m scripts.fix_pre_commit"]
 default-args = ["tests", "irclib"]
 extra-args = ["-vv"]
 extra-dependencies = [
-    "coverage[toml]>=6.5",
-    "pytest>=6.0",
+    "coverage[toml]~=6.5",
+    "pytest~=6.0",
     "irc-parser-tests",
 ]
 
@@ -71,7 +74,7 @@ cov-report = ["coverage report --show-missing --skip-covered", "coverage xml"]
 python = ["3.13", "3.12", "3.11", "3.10", "3.9"]
 
 [tool.hatch.envs.types]
-extra-dependencies = ["mypy>=1.0.0"]
+extra-dependencies = ["mypy~=1.8"]
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:irclib tests}"
 
