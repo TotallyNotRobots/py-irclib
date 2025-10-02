@@ -43,7 +43,7 @@ version-file = "irclib/_version.py"
 [tool.hatch.envs.default]
 dependencies = [
     "coverage[toml]~=6.5",
-    "pytest~=6.0",
+    "pytest~=8.4",
     "irc-parser-tests",
     "pre-commit~=4.3.0",
     "mypy~=1.8",
@@ -61,7 +61,7 @@ default-args = ["tests", "irclib"]
 extra-args = ["-vv"]
 extra-dependencies = [
     "coverage[toml]~=6.5",
-    "pytest~=6.0",
+    "pytest~=8.4",
     "irc-parser-tests",
 ]
 
