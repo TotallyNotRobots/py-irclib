@@ -1,7 +1,7 @@
 """IRC command data and utilities."""
 
 from collections.abc import Iterator, Mapping
-from typing import List, Optional, cast
+from typing import Optional, cast
 
 import attr
 

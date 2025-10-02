@@ -4,15 +4,12 @@ import operator
 import string
 from typing import (
     Callable,
-    Dict,
     Final,
-    List,
     Literal,
     NamedTuple,
     Optional,
     Protocol,
     SupportsIndex,
-    Tuple,
     Union,
 )
 

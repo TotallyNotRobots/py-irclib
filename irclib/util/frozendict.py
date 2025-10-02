@@ -1,7 +1,7 @@
 """Frozen Dict."""
 
 from collections.abc import Iterable, Iterator, Mapping
-from typing import Dict, Optional, Tuple, TypeVar, Union
+from typing import Optional, TypeVar, Union
 
 from typing_extensions import Self
 

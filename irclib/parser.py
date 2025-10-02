@@ -6,17 +6,7 @@ Backported from async-irc (https://github.com/snoonetIRC/async-irc.git)
 import re
 from abc import ABCMeta, abstractmethod
 from collections.abc import Iterable, Iterator, Sequence
-from typing import (
-    Dict,
-    Final,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import Final, Literal, Optional, Union, cast
 
 from typing_extensions import Self, TypeAlias
 
@@ -64,8 +54,6 @@ TAG_VALUE_ESCAPES: Final = {
 TAG_VALUE_UNESCAPES: Final = {
     unescaped: escaped for escaped, unescaped in TAG_VALUE_ESCAPES.items()
 }
-
-SelfT = TypeVar("SelfT")
 
 
 class Parseable(metaclass=ABCMeta):

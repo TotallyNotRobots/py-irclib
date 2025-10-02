@@ -1,6 +1,6 @@
 """Test IRC parser."""
 
-from typing import Dict, List, Optional, Tuple, Type, TypedDict
+from typing import Optional, TypedDict
 
 import parser_tests.data
 import pytest

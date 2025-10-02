@@ -1,6 +1,6 @@
 """Test IRC string comparisons."""
 
-from typing import List, TypedDict
+from typing import TypedDict
 
 import parser_tests.data
 import pytest

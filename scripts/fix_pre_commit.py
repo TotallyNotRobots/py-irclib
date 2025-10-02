@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2018-present linuxdaemon <linuxdaemon.irc@gmail.com>
 #
 # SPDX-License-Identifier: MIT
+"""Fix pre-commit file."""
 
 from pathlib import Path
 
@@ -18,6 +19,7 @@ PRE_COMMIT_FILE = Path(".pre-commit-config.yaml")
 
 
 def main() -> None:
+    """Fix pre-commit file format."""
     with PRE_COMMIT_FILE.open() as f:
         data = yaml.load(f)
 
