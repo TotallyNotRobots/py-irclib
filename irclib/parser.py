@@ -8,9 +8,9 @@ import re
 import warnings
 from abc import ABCMeta, abstractmethod
 from collections.abc import Iterable, Iterator, Sequence
-from typing import Final, Literal, Optional, Union, cast
+from typing import Final, Literal, Optional, TypeAlias, cast
 
-from typing_extensions import Self, TypeAlias
+from typing_extensions import Self
 
 from irclib.errors import ParseError
 
@@ -59,7 +59,7 @@ TAG_VALUE_UNESCAPES: Final = {
 
 
 def parse_server_time(
-    value: Optional[str], default: datetime.datetime
+    value: str | None, default: datetime.datetime
 ) -> datetime.datetime:
     if value:
         return datetime.datetime.strptime(
@@ -86,7 +86,7 @@ class Parseable(metaclass=ABCMeta):
 class Cap(Parseable):
     """Represents a CAP entity as defined in IRCv3.2."""
 
-    def __init__(self, name: str, value: Optional[str] = None) -> None:
+    def __init__(self, name: str, value: str | None = None) -> None:
         """Construct Cap object.
 
         Args:
@@ -102,11 +102,11 @@ class Cap(Parseable):
         return self._name
 
     @property
-    def value(self) -> Optional[str]:
+    def value(self) -> str | None:
         """CAP value."""
         return self._value
 
-    def as_tuple(self) -> tuple[str, Optional[str]]:
+    def as_tuple(self) -> tuple[str, str | None]:
         """Get data as a tuple of values."""
         return self.name, self.value
 
@@ -307,9 +307,10 @@ class TagList(Parseable, dict[str, MessageTag]):
     @staticmethod
     def _cmp_type_map(
         obj: object,
-    ) -> Union[
-        tuple[dict[str, MessageTag], Literal[True]], tuple[None, Literal[False]]
-    ]:
+    ) -> (
+        tuple[dict[str, MessageTag], Literal[True]]
+        | tuple[None, Literal[False]]
+    ):
         if isinstance(obj, str):
             return TagList.parse(obj), True
 
@@ -367,9 +368,9 @@ class Prefix(Parseable):
 
     def __init__(
         self,
-        nick: Optional[str] = None,
-        user: Optional[str] = None,
-        host: Optional[str] = None,
+        nick: str | None = None,
+        user: str | None = None,
+        host: str | None = None,
     ) -> None:
         """Construct a prefix."""
         self._nick = nick or ""
@@ -558,7 +559,7 @@ class ParamList(Parseable, list[str]):
 
 
 def _parse_tags(
-    tags: Union[TagList, dict[str, str], str, None, list[str]],
+    tags: TagList | dict[str, str] | str | None | list[str],
 ) -> MsgTagList:
     if isinstance(tags, TagList):
         return tags
@@ -575,7 +576,7 @@ def _parse_tags(
     return TagList(MessageTag.parse(str(tag)) for tag in tags)
 
 
-def _parse_prefix(prefix: Union[Prefix, str, None, Iterable[str]]) -> MsgPrefix:
+def _parse_prefix(prefix: Prefix | str | None | Iterable[str]) -> MsgPrefix:
     if isinstance(prefix, Prefix):
         return prefix
 
@@ -589,7 +590,7 @@ def _parse_prefix(prefix: Union[Prefix, str, None, Iterable[str]]) -> MsgPrefix:
 
 
 def _parse_params(
-    parameters: tuple[Union[str, list[str], ParamList], ...],
+    parameters: tuple[str | list[str] | ParamList, ...],
 ) -> ParamList:
     if len(parameters) == 1 and not isinstance(parameters[0], str):
         # This seems to be a list
@@ -606,11 +607,11 @@ class Message(Parseable):
 
     def __init__(
         self,
-        tags: Union[TagList, dict[str, str], str, None, list[str]],
-        prefix: Union[str, Prefix, None, Iterable[str]],
+        tags: TagList | dict[str, str] | str | None | list[str],
+        prefix: str | Prefix | None | Iterable[str],
         command: str,
-        *parameters: Union[str, list[str], ParamList],
-        time: Optional[datetime.datetime] = None,
+        *parameters: str | list[str] | ParamList,
+        time: datetime.datetime | None = None,
     ) -> None:
         """Construct message object."""
         self._tags = _parse_tags(tags)
@@ -638,7 +639,7 @@ class Message(Parseable):
 
         return name in self.tags
 
-    def get_tag_value(self, name: str) -> Optional[str]:
+    def get_tag_value(self, name: str) -> str | None:
         """Get value for a message tag, or None if not set."""
         if self.tags and name in self.tags:
             return self.tags[name].value
@@ -654,12 +655,12 @@ class Message(Parseable):
         return parse_server_time(self.get_tag_value("time"), self._time)
 
     @property
-    def message_id(self) -> Optional[str]:
+    def message_id(self) -> str | None:
         """Unique message ID provided by server."""
         return self.get_tag_value("msgid")
 
     @property
-    def batch_id(self) -> Optional[str]:
+    def batch_id(self) -> str | None:
         """Batch ID provided by server."""
         return self.get_tag_value("batch")
 
@@ -689,16 +690,13 @@ class Message(Parseable):
 
     @classmethod
     def parse(
-        cls,
-        text: Union[str, bytes],
-        *,
-        time: Optional[datetime.datetime] = None,
+        cls, text: str | bytes, *, time: datetime.datetime | None = None
     ) -> Self:
         """Parse an IRC message in to objects."""
         if isinstance(text, memoryview):
             text = text.tobytes().decode(errors="ignore")
 
-        if isinstance(text, (bytes, bytearray)):
+        if isinstance(text, bytes | bytearray):
             text = text.decode(errors="ignore")
 
         tags = ""
@@ -720,7 +718,7 @@ class Message(Parseable):
 
     def __eq__(self, other: object) -> bool:
         """Compare to another message which can be str, bytes, or a Message object."""
-        if isinstance(other, (str, bytes)):
+        if isinstance(other, str | bytes):
             return self == Message.parse(other)
 
         if isinstance(other, Message):
@@ -730,7 +728,7 @@ class Message(Parseable):
 
     def __ne__(self, other: object) -> bool:
         """Compare to another message which can be str, bytes, or a Message object."""
-        if isinstance(other, (str, bytes)):
+        if isinstance(other, str | bytes):
             return self != Message.parse(other)
 
         if isinstance(other, Message):
