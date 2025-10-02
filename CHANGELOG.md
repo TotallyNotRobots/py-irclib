@@ -1,3 +1,27 @@
+## v0.7.0 (2025-10-02)
+
+### Feat
+
+- drop support for python 3.9 (#377)
+- add support for python 3.13 (#376)
+- **parser**: add tag access fields to Message objects (#308)
+- drop python 3.8 support
+
+### Fix
+
+- **deps**: only pin build dependencies
+- don't override deps for test env
+- correct __all__ in util package
+- correct type annotations for type inference
+- update zsh-plugins feature source to use the correct repository
+- Remove codeql config to use default setup
+
+### Refactor
+
+- cleanup imports
+- add ssort to sort module members
+- add version data to root module
+
 ## v0.6.0 (2024-04-16)
 
 ### Feat
