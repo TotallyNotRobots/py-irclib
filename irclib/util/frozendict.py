@@ -1,7 +1,7 @@
 """Frozen Dict."""
 
 from collections.abc import Iterable, Iterator, Mapping
-from typing import Optional, TypeVar, Union
+from typing import TypeVar
 
 from typing_extensions import Self
 
@@ -20,14 +20,14 @@ class FrozenDict(Mapping[str, _V]):
 
     def __init__(
         self,
-        seq: Union[Mapping[str, _V], Iterable[tuple[str, _V]], None] = None,
+        seq: Mapping[str, _V] | Iterable[tuple[str, _V]] | None = None,
         **kwargs: _V,
     ) -> None:
         """Construct a FrozenDict."""
         d = dict(seq, **kwargs) if seq is not None else dict(**kwargs)
 
         self.__data: dict[str, _V] = d
-        self.__hash: Optional[int] = None
+        self.__hash: int | None = None
 
     def copy(self, **kwargs: _V) -> Self:
         """Copy dict, replacing values according to kwargs.

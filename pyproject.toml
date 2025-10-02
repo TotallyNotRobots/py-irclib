@@ -8,14 +8,13 @@ dynamic = ["version"]
 description = "A simple library for working with the IRC protocol"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [{ name = "linuxdaemon", email = "linuxdaemon.irc@gmail.com" }]
 keywords = ["irc", "irc-parser"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -69,7 +68,7 @@ run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
 cov-combine = "coverage combine"
 cov-report = ["coverage report --show-missing --skip-covered", "coverage xml"]
 [[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.13", "3.12", "3.11", "3.10", "3.9"]
+python = ["3.13", "3.12", "3.11", "3.10"]
 
 [tool.hatch.envs.types]
 extra-dependencies = ["mypy==1.18.2"]
@@ -86,12 +85,12 @@ float_to_top = true
 
 [tool.black]
 line-length = 80
-target-version = ["py39"]
+target-version = ["py310"]
 include = '\.pyi?$'
 
 [tool.ruff]
 line-length = 80
-target-version = 'py39'
+target-version = 'py310'
 
 [tool.ruff.format]
 docstring-code-format = true
@@ -102,6 +101,7 @@ skip-magic-trailing-comma = true
 ignore-init-module-imports = false
 extend-safe-fixes = [
     "EM101",
+    "UP038",
     "EM102",
     "EM103",
     "FLY002",
@@ -121,7 +121,6 @@ ignore = [
     "COM812", # Conflicts with formatter
     "ISC001", # Conflicts with formatter
     "EXE002", # pre-commit does it better, works with SMB shares
-    "FA100",
 ]
 select = ["ALL"]
 
@@ -152,7 +151,7 @@ line-length = 120
 
 [tool.mypy]
 namespace_packages = true
-python_version = "3.9"
+python_version = "3.10"
 warn_unused_configs = true
 strict = true
 strict_bytes = false
@@ -210,7 +209,7 @@ major_version_zero = true
 annotated_tag = true
 
 [tool.nitpick]
-style = ["gh://TotallyNotRobots/nitpick/lib-style-3.9.toml"]
+style = ["gh://TotallyNotRobots/nitpick/lib-style-3.10.toml"]
 
 [tool.check-spdx-header]
 headers = ["2017-present linuxdaemon <linuxdaemon.irc@gmail.com>"]

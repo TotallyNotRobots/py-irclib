@@ -2,16 +2,8 @@
 
 import operator
 import string
-from typing import (
-    Callable,
-    Final,
-    Literal,
-    NamedTuple,
-    Optional,
-    Protocol,
-    SupportsIndex,
-    Union,
-)
+from collections.abc import Callable
+from typing import Final, Literal, NamedTuple, Protocol, SupportsIndex
 
 __all__ = ("Casemap", "RFC1459", "STRICT_RFC1459", "ASCII", "String")
 
@@ -48,7 +40,7 @@ ASCII: Final = Casemap(
 
 
 class TranslateTable(Protocol):
-    def __getitem__(self, item: int, /) -> Union[str, int, None]:
+    def __getitem__(self, item: int, /) -> str | int | None:
         raise NotImplementedError
 
 
@@ -60,7 +52,7 @@ class String(str):
     _casemap: Casemap
 
     def __new__(
-        cls, value: str = "", casemap: Optional[Casemap] = None
+        cls, value: str = "", casemap: Casemap | None = None
     ) -> "String":
         """Construct new String and set casemap."""
         o = str.__new__(cls, value)
@@ -73,7 +65,7 @@ class String(str):
 
     def __internal_cmp(
         self, other: object, cmp: Callable[[str, str], bool]
-    ) -> Union[tuple[bool, Literal[True]], tuple[None, Literal[False]]]:
+    ) -> tuple[bool, Literal[True]] | tuple[None, Literal[False]]:
         if isinstance(other, String):
             return cmp(str(self.casefold()), str(other.casefold())), True
 
@@ -124,8 +116,8 @@ class String(str):
     def count(
         self,
         sub: str,
-        start: Optional[SupportsIndex] = None,
-        end: Optional[SupportsIndex] = None,
+        start: SupportsIndex | None = None,
+        end: SupportsIndex | None = None,
     ) -> int:
         """Count substring occurrences."""
         return str(self.casefold()).count(
@@ -134,9 +126,9 @@ class String(str):
 
     def startswith(
         self,
-        prefix: Union[str, tuple[str, ...]],
-        start: Optional[SupportsIndex] = None,
-        end: Optional[SupportsIndex] = None,
+        prefix: str | tuple[str, ...],
+        start: SupportsIndex | None = None,
+        end: SupportsIndex | None = None,
     ) -> bool:
         """Check if string starts with a prefix."""
         prefix_list: tuple[str, ...]
@@ -148,9 +140,9 @@ class String(str):
 
     def endswith(
         self,
-        suffix: Union[str, tuple[str, ...]],
-        start: Optional[SupportsIndex] = None,
-        end: Optional[SupportsIndex] = None,
+        suffix: str | tuple[str, ...],
+        start: SupportsIndex | None = None,
+        end: SupportsIndex | None = None,
     ) -> bool:
         """Check if string ends with a suffix."""
         suffix_list: tuple[str, ...]
@@ -163,8 +155,8 @@ class String(str):
     def find(
         self,
         sub: str,
-        start: Optional[SupportsIndex] = None,
-        end: Optional[SupportsIndex] = None,
+        start: SupportsIndex | None = None,
+        end: SupportsIndex | None = None,
     ) -> int:
         """Find the substring in string."""
         return str(self.casefold()).find(self._wrap(sub).casefold(), start, end)
@@ -172,8 +164,8 @@ class String(str):
     def rfind(
         self,
         sub: str,
-        start: Optional[SupportsIndex] = None,
-        end: Optional[SupportsIndex] = None,
+        start: SupportsIndex | None = None,
+        end: SupportsIndex | None = None,
     ) -> int:
         """Perform a reverse find."""
         return str(self.casefold()).rfind(
@@ -183,8 +175,8 @@ class String(str):
     def index(
         self,
         sub: str,
-        start: Optional[SupportsIndex] = None,
-        end: Optional[SupportsIndex] = None,
+        start: SupportsIndex | None = None,
+        end: SupportsIndex | None = None,
     ) -> int:
         """Find the index of the substring."""
         return str(self.casefold()).index(
@@ -194,8 +186,8 @@ class String(str):
     def rindex(
         self,
         sub: str,
-        start: Optional[SupportsIndex] = None,
-        end: Optional[SupportsIndex] = None,
+        start: SupportsIndex | None = None,
+        end: SupportsIndex | None = None,
     ) -> int:
         """Perform a reverse index."""
         return str(self.casefold()).rindex(
@@ -224,11 +216,11 @@ class String(str):
         """Not currently implemented."""
         raise NotImplementedError
 
-    def strip(self, chars: Optional[str] = None) -> "String":
+    def strip(self, chars: str | None = None) -> "String":
         """Remove characters from the beginning and end of the string."""
         return self.lstrip(chars).rstrip(chars)
 
-    def lstrip(self, chars: Optional[str] = None) -> "String":
+    def lstrip(self, chars: str | None = None) -> "String":
         """Remove characters from the beginning of the string."""
         if chars is None:
             chars = string.whitespace
@@ -241,7 +233,7 @@ class String(str):
 
         return self[start:]
 
-    def rstrip(self, chars: Optional[str] = None) -> "String":
+    def rstrip(self, chars: str | None = None) -> "String":
         """Remove characters from the end of the string."""
         if chars is None:
             chars = string.whitespace
@@ -270,13 +262,13 @@ class String(str):
         raise NotImplementedError
 
     def split(
-        self, sep: Optional[str] = None, maxsplit: SupportsIndex = -1
+        self, sep: str | None = None, maxsplit: SupportsIndex = -1
     ) -> list[str]:
         """Not currently implemented."""
         raise NotImplementedError
 
     def rsplit(
-        self, sep: Optional[str] = None, maxsplit: SupportsIndex = -1
+        self, sep: str | None = None, maxsplit: SupportsIndex = -1
     ) -> list[str]:
         """Not currently implemented."""
         raise NotImplementedError
@@ -286,7 +278,7 @@ class String(str):
         """Casemap associated with this string."""
         return self._casemap
 
-    def __getitem__(self, item: Union[SupportsIndex, slice]) -> "String":
+    def __getitem__(self, item: SupportsIndex | slice) -> "String":
         """Get substring."""
         return self._wrap(super().__getitem__(item))
 

@@ -1,7 +1,7 @@
 """Test IRC parser."""
 
 import datetime
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 import parser_tests.data
 import pytest
@@ -84,7 +84,7 @@ class TestCap:
             ("capname", None, "capname"),
         ],
     )
-    def test_str(self, name: str, value: Optional[str], expected: str) -> None:
+    def test_str(self, name: str, value: str | None, expected: str) -> None:
         """Test string conversion."""
         c = Cap(name, value)
         assert str(c) == expected
@@ -121,9 +121,9 @@ class TestCap:
     def test_ne(
         self,
         name: str,
-        value: Optional[str],
+        value: str | None,
         other_name: str,
-        other_value: Optional[str],
+        other_value: str | None,
     ) -> None:
         """Test not-equals."""
         assert Cap(name, value) != Cap(other_name, other_value)
@@ -143,7 +143,7 @@ class TestCap:
             ("foo", None, "baz"),
         ],
     )
-    def test_ne_str(self, name: str, value: Optional[str], string: str) -> None:
+    def test_ne_str(self, name: str, value: str | None, string: str) -> None:
         """Test not-equals string."""
         assert Cap(name, value) != string
         assert string != Cap(name, value)
@@ -161,7 +161,7 @@ class TestCap:
         ("text", "name", "value"),
         [("vendor.example.org/cap-name", "vendor.example.org/cap-name", None)],
     )
-    def test_parse(self, text: str, name: str, value: Optional[str]) -> None:
+    def test_parse(self, text: str, name: str, value: str | None) -> None:
         """Test parsing string."""
         cap = Cap.parse(text)
         assert cap.name == name
@@ -214,12 +214,12 @@ class TestCapList:
         ],
     )
     def test_parse(
-        self, text: str, expected: tuple[tuple[str, Optional[str]], ...]
+        self, text: str, expected: tuple[tuple[str, str | None], ...]
     ) -> None:
         """Test string parsing."""
         parsed = CapList.parse(text)
         assert len(parsed) == len(expected)
-        for (name, value), actual in zip(expected, parsed):
+        for (name, value), actual in zip(expected, parsed, strict=False):
             assert actual.name == name
             assert actual.value == value
 
@@ -304,19 +304,19 @@ class TestMessageTag:
             ("blah=\\", "blah", ""),
         ],
     )
-    def test_parse(self, text: str, name: str, value: Optional[str]) -> None:
+    def test_parse(self, text: str, name: str, value: str | None) -> None:
         """Test parsing a string."""
         tag = MessageTag.parse(text)
         assert tag.name == name
         assert tag.value == value
 
     @pytest.mark.parametrize(("name", "value"), [("a", None), ("a", "b")])
-    def test_eq(self, name: str, value: Optional[str]) -> None:
+    def test_eq(self, name: str, value: str | None) -> None:
         """Test equals."""
         assert MessageTag(name, value) == MessageTag(name, value)  # type: ignore[arg-type]
 
     @pytest.mark.parametrize(("name", "value"), [("a", None), ("a", "b")])
-    def test_ne(self, name: str, value: Optional[str]) -> None:
+    def test_ne(self, name: str, value: str | None) -> None:
         """Test not-equals."""
         b = MessageTag(name, value) != MessageTag(name, value)  # type: ignore[arg-type]
         assert not b
@@ -325,7 +325,7 @@ class TestMessageTag:
         ("name", "value", "text"),
         [("foo", None, "foo"), ("foo", "bar", "foo=bar")],
     )
-    def test_eq_str(self, name: str, value: Optional[str], text: str) -> None:
+    def test_eq_str(self, name: str, value: str | None, text: str) -> None:
         """Test equals string."""
         assert MessageTag(name, value) == text  # type: ignore[arg-type]
         assert text == MessageTag(name, value)  # type: ignore[arg-type]
@@ -334,7 +334,7 @@ class TestMessageTag:
         ("name", "value", "text"),
         [("foo", None, "foo"), ("foo", "bar", "foo=bar")],
     )
-    def test_ne_str(self, name: str, value: Optional[str], text: str) -> None:
+    def test_ne_str(self, name: str, value: str | None, text: str) -> None:
         """Test not-equals string."""
         b = MessageTag(name, value) != text  # type: ignore[arg-type]
         assert not b
@@ -420,9 +420,7 @@ class TestTagList:
             (TagList([MessageTag("b", "c")]), {"b": "c"}),
         ],
     )
-    def test_eq_dict(
-        self, obj: TagList, other: dict[str, Optional[str]]
-    ) -> None:
+    def test_eq_dict(self, obj: TagList, other: dict[str, str | None]) -> None:
         """Test equals dict."""
         assert obj == other
         assert other == obj
@@ -435,9 +433,7 @@ class TestTagList:
             (TagList([MessageTag("b", "c")]), {"b": "c"}),
         ],
     )
-    def test_ne_dict(
-        self, obj: TagList, other: dict[str, Optional[str]]
-    ) -> None:
+    def test_ne_dict(self, obj: TagList, other: dict[str, str | None]) -> None:
         """Test not-equals dict."""
         b = obj != other
         assert not b
@@ -519,9 +515,7 @@ class TestPrefix:
             ("nick", "user", None),
         ],
     )
-    def test_eq(
-        self, nick: str, user: Optional[str], host: Optional[str]
-    ) -> None:
+    def test_eq(self, nick: str, user: str | None, host: str | None) -> None:
         """Test equals."""
         assert Prefix(nick, user, host) == Prefix(nick, user, host)
 
@@ -534,9 +528,7 @@ class TestPrefix:
             ("nick", "user", None),
         ],
     )
-    def test_ne(
-        self, nick: str, user: Optional[str], host: Optional[str]
-    ) -> None:
+    def test_ne(self, nick: str, user: str | None, host: str | None) -> None:
         """Test not-equals."""
         b = Prefix(nick, user, host) != Prefix(nick, user, host)
         assert not b
@@ -551,11 +543,7 @@ class TestPrefix:
         ],
     )
     def test_eq_str(
-        self,
-        text: str,
-        nick: Optional[str],
-        user: Optional[str],
-        host: Optional[str],
+        self, text: str, nick: str | None, user: str | None, host: str | None
     ) -> None:
         """Test equals string."""
         assert Prefix(nick, user, host) == text
@@ -571,11 +559,7 @@ class TestPrefix:
         ],
     )
     def test_ne_str(
-        self,
-        text: str,
-        nick: Optional[str],
-        user: Optional[str],
-        host: Optional[str],
+        self, text: str, nick: str | None, user: str | None, host: str | None
     ) -> None:
         """Test not-equals string comparisons."""
         b = Prefix(nick, user, host) != text
@@ -605,11 +589,7 @@ class TestPrefix:
         ],
     )
     def test_unpack(
-        self,
-        obj: Prefix,
-        nick: Optional[str],
-        user: Optional[str],
-        host: Optional[str],
+        self, obj: Prefix, nick: str | None, user: str | None, host: str | None
     ) -> None:
         """Test unpacking Prefix."""
         n, u, h = obj
@@ -634,7 +614,7 @@ class TestPrefix:
         ],
     )
     def test_bool(
-        self, nick: Optional[str], user: Optional[str], host: Optional[str]
+        self, nick: str | None, user: str | None, host: str | None
     ) -> None:
         """Test cases where bool(Prefix) == True."""
         assert Prefix(nick, user, host)
@@ -653,7 +633,7 @@ class TestPrefix:
         ],
     )
     def test_bool_false(
-        self, nick: Optional[str], user: Optional[str], host: Optional[str]
+        self, nick: str | None, user: str | None, host: str | None
     ) -> None:
         """Test cases where bool(Prefix) == False."""
         assert not Prefix(nick, user, host)
@@ -763,8 +743,8 @@ class TestMessage:
     )
     def test_eq(
         self,
-        tags: Optional[str],
-        prefix: Optional[str],
+        tags: str | None,
+        prefix: str | None,
         command: str,
         params: list[str],
     ) -> None:
@@ -779,8 +759,8 @@ class TestMessage:
     )
     def test_ne(
         self,
-        tags: Optional[str],
-        prefix: Optional[str],
+        tags: str | None,
+        prefix: str | None,
         command: str,
         params: list[str],
     ) -> None:
@@ -882,7 +862,7 @@ class TestMessage:
             ("FOO #bar :baz blah", None),
         ],
     )
-    def test_parse_msgid(self, msg: str, expected: Optional[str]) -> None:
+    def test_parse_msgid(self, msg: str, expected: str | None) -> None:
         """Ensure message IDs are retrieved."""
         assert Message.parse(msg).message_id == expected
 
@@ -893,7 +873,7 @@ class TestMessage:
             ("FOO #bar :baz blah", None),
         ],
     )
-    def test_parse_batch(self, msg: str, expected: Optional[str]) -> None:
+    def test_parse_batch(self, msg: str, expected: str | None) -> None:
         """Ensure batch IDs are retrieved."""
         assert Message.parse(msg).batch_id == expected
 

@@ -1,7 +1,7 @@
 """IRC command data and utilities."""
 
 from collections.abc import Iterator, Mapping
-from typing import Optional, cast
+from typing import cast
 
 import attr
 
@@ -13,7 +13,7 @@ class CommandArgument:
     """A single IRC command argument."""
 
     name: str
-    required: Optional[bool] = True
+    required: bool | None = True
 
     @classmethod
     def parse(cls, s: str) -> "CommandArgument":
@@ -47,7 +47,7 @@ class Command:
     name: str
     args: list[CommandArgument]
     min_args: int = 0
-    max_args: Optional[int] = None
+    max_args: int | None = None
 
 
 class LookupDict(Mapping[str, Command]):
