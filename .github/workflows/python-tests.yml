@@ -15,7 +15,11 @@ env:
   FORCE_COLOR: "1"
 
 jobs:
-  build:
+  test:
+    permissions:
+      contents: read
+      id-token: write
+
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -47,3 +51,9 @@ jobs:
 
     - name: Run tests
       run: hatch test --python ${{ matrix.python-version }} --cover --randomize --retries 2 --retry-delay 1
+
+    - uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      with:
+        name: "build-${{ matrix.python-version }}"
+        fail_ci_if_error: true
+        use_oidc: true
