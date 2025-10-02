@@ -205,10 +205,11 @@ relative_files = true
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "v$version"
-version_scheme = "semver"
+version_scheme = "semver2"
 version_provider = "scm"
 update_changelog_on_bump = true
 major_version_zero = true
+annotated_tag = true
 
 [tool.nitpick]
 style = ["gh://TotallyNotRobots/nitpick/lib-style-3.9.toml"]
