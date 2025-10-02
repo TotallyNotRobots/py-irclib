@@ -3,7 +3,9 @@
 Backported from async-irc (https://github.com/snoonetIRC/async-irc.git)
 """
 
+import datetime
 import re
+import warnings
 from abc import ABCMeta, abstractmethod
 from collections.abc import Iterable, Iterator, Sequence
 from typing import Final, Literal, Optional, Union, cast
@@ -54,6 +56,17 @@ TAG_VALUE_ESCAPES: Final = {
 TAG_VALUE_UNESCAPES: Final = {
     unescaped: escaped for escaped, unescaped in TAG_VALUE_ESCAPES.items()
 }
+
+
+def parse_server_time(
+    value: Optional[str], default: datetime.datetime
+) -> datetime.datetime:
+    if value:
+        return datetime.datetime.strptime(
+            value, "%Y-%m-%dT%H:%M:%S.%fZ"
+        ).replace(tzinfo=datetime.timezone.utc)
+
+    return default
 
 
 class Parseable(metaclass=ABCMeta):
@@ -597,12 +610,58 @@ class Message(Parseable):
         prefix: Union[str, Prefix, None, Iterable[str]],
         command: str,
         *parameters: Union[str, list[str], ParamList],
+        time: Optional[datetime.datetime] = None,
     ) -> None:
         """Construct message object."""
         self._tags = _parse_tags(tags)
         self._prefix = _parse_prefix(prefix)
         self._command = command
         self._parameters = _parse_params(parameters)
+
+        if time is None:
+            time = datetime.datetime.now(datetime.timezone.utc)
+
+        if time.tzinfo is None:
+            time = time.replace(tzinfo=datetime.timezone.utc)
+            warnings.warn(
+                "Timezone-naive datetime is deprecated for 'time'.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+        self._time = time
+
+    def has_tag(self, name: str) -> bool:
+        """Return whether this message has a particular message tag."""
+        if not self.tags:
+            return False
+
+        return name in self.tags
+
+    def get_tag_value(self, name: str) -> Optional[str]:
+        """Get value for a message tag, or None if not set."""
+        if self.tags and name in self.tags:
+            return self.tags[name].value
+
+        return None
+
+    @property
+    def time(self) -> datetime.datetime:
+        """Time the message was sent/received.
+
+        Uses server-time tag if available.
+        """
+        return parse_server_time(self.get_tag_value("time"), self._time)
+
+    @property
+    def message_id(self) -> Optional[str]:
+        """Unique message ID provided by server."""
+        return self.get_tag_value("msgid")
+
+    @property
+    def batch_id(self) -> Optional[str]:
+        """Batch ID provided by server."""
+        return self.get_tag_value("batch")
 
     @property
     def tags(self) -> MsgTagList:
@@ -629,7 +688,12 @@ class Message(Parseable):
         return self.tags, self.prefix, self.command, self.parameters
 
     @classmethod
-    def parse(cls, text: Union[str, bytes]) -> Self:
+    def parse(
+        cls,
+        text: Union[str, bytes],
+        *,
+        time: Optional[datetime.datetime] = None,
+    ) -> Self:
         """Parse an IRC message in to objects."""
         if isinstance(text, memoryview):
             text = text.tobytes().decode(errors="ignore")
@@ -652,7 +716,7 @@ class Message(Parseable):
         prefix_obj = Prefix.parse(prefix[1:]) if prefix else None
         command = command.upper()
         param_obj = ParamList.parse(params)
-        return cls(tags_obj, prefix_obj, command, param_obj)
+        return cls(tags_obj, prefix_obj, command, param_obj, time=time)
 
     def __eq__(self, other: object) -> bool:
         """Compare to another message which can be str, bytes, or a Message object."""

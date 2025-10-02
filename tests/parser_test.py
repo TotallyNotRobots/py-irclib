@@ -1,5 +1,6 @@
 """Test IRC parser."""
 
+import datetime
 from typing import Optional, TypedDict
 
 import parser_tests.data
@@ -825,6 +826,100 @@ class TestMessage:
     def test_bool_false(self, obj: Message) -> None:
         """Test all the cases where bool(Message) should return False."""
         assert not obj
+
+    @pytest.mark.parametrize(
+        ("msg", "expected"),
+        [
+            (
+                "@time=2025-09-01T00:11:22.123Z FOO #bar :baz blah",
+                datetime.datetime(
+                    year=2025,
+                    month=9,
+                    day=1,
+                    hour=0,
+                    minute=11,
+                    second=22,
+                    microsecond=123000,
+                    tzinfo=datetime.timezone.utc,
+                ),
+            ),
+            (
+                "FOO #bar :baz blah",
+                datetime.datetime(
+                    year=2006,
+                    month=1,
+                    day=2,
+                    hour=3,
+                    minute=4,
+                    second=5,
+                    microsecond=123456,
+                    tzinfo=datetime.timezone(datetime.timedelta(hours=-7)),
+                ),
+            ),
+        ],
+    )
+    def test_parse_server_time(
+        self, msg: str, expected: datetime.datetime
+    ) -> None:
+        """Test server time parsing."""
+        default_time = datetime.datetime(
+            year=2006,
+            month=1,
+            day=2,
+            hour=3,
+            minute=4,
+            second=5,
+            microsecond=123456,
+            tzinfo=datetime.timezone(datetime.timedelta(hours=-7)),
+        )
+
+        assert Message.parse(msg, time=default_time).time == expected
+
+    @pytest.mark.parametrize(
+        ("msg", "expected"),
+        [
+            ("@msgid=foo FOO #bar :baz blah", "foo"),
+            ("FOO #bar :baz blah", None),
+        ],
+    )
+    def test_parse_msgid(self, msg: str, expected: Optional[str]) -> None:
+        """Ensure message IDs are retrieved."""
+        assert Message.parse(msg).message_id == expected
+
+    @pytest.mark.parametrize(
+        ("msg", "expected"),
+        [
+            ("@batch=foo FOO #bar :baz blah", "foo"),
+            ("FOO #bar :baz blah", None),
+        ],
+    )
+    def test_parse_batch(self, msg: str, expected: Optional[str]) -> None:
+        """Ensure batch IDs are retrieved."""
+        assert Message.parse(msg).batch_id == expected
+
+    def test_naive_datetime_warning(self) -> None:
+        """Ensure warning about use of naive datetimes is present."""
+        with pytest.warns(DeprecationWarning, match=".*naive.*"):
+            Message(
+                None,
+                None,
+                "cmd",
+                time=datetime.datetime(year=1, month=1, day=1),  # noqa: DTZ001
+            )
+
+    @pytest.mark.parametrize(
+        ("msg", "tag", "present"),
+        [
+            ("", "", False),
+            ("@foo=bar FOO", "foo", True),
+            ("@foo=bar FOO", "bar", False),
+            ("@foo= FOO", "foo", True),
+            ("@foo= FOO", "bar", False),
+        ],
+    )
+    def test_has_tag(self, msg: str, tag: str, present: bool) -> None:
+        """Test has_tag."""
+        assert Message.parse(msg).has_tag(tag) == present
 
 
 def test_trail() -> None:
