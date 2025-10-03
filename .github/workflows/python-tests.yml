@@ -13,6 +13,7 @@ concurrency:
 env:
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
+  HATCH_VERSION: "1.14.1"
 
 jobs:
   test:
@@ -39,15 +40,20 @@ jobs:
         cache: "pip"
 
     - name: Install Hatch
-      run: pip install --user --upgrade hatch
+      uses: pypa/hatch@install
+      with:
+        version: "${{ env.HATCH_VERSION }}"
 
     - name: Run type check
       run: hatch run types:check
 
+    - name: Run formatter
+      run: hatch fmt
+
     - name: Run pre-commit
       run: hatch run pre-commit run --all
       env:
-        SKIP: nitpick
+        SKIP: nitpick,hatch-fmt,hatch-types
 
     - name: Run tests
       run: hatch test --python ${{ matrix.python-version }} --cover --randomize --retries 2 --retry-delay 1

@@ -77,11 +77,16 @@ repos:
       - id: commitizen
   - repo: local
     hooks:
-      - id: mypy
-        exclude: tests/.*
-        entry: hatch run python3 -m mypy
+      - id: hatch-fmt
+        entry: hatch fmt
         language: system
-        name: mypy
+        name: hatch fmt
+        types:
+          - python
+      - id: hatch-types
+        entry: hatch run types:check
+        language: system
+        name: hatch types
         types:
           - python
   - repo: https://github.com/andreoliwa/nitpick
