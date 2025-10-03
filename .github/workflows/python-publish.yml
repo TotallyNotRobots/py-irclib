@@ -2,6 +2,9 @@ name: Build and Publish
 
 on: [push]
 
+env:
+  HATCH_VERSION: "1.14.1"
+
 jobs:
   build:
     name: Build distribution 📦
@@ -14,9 +17,10 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Install hatch
-        run: >-
-          python3 -m pip install --upgrade hatch --user
+      - name: Install Hatch
+        uses: pypa/hatch@install
+        with:
+          version: "${{ env.HATCH_VERSION }}"
 
       - name: Build a binary wheel and a source tarball
         run: hatch build
@@ -46,4 +50,4 @@ jobs:
           path: dist/
 
       - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@v1.13.0
