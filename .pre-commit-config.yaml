@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b  # frozen: v5.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:
       - id: trailing-whitespace
         args:
@@ -37,11 +37,11 @@ repos:
     hooks:
       - id: ssort
   - repo: https://github.com/psf/black
-    rev: 8a737e727ac5ab2f1d4cf5876720ed276dc8dc4b  # frozen: 25.1.0
+    rev: af0ba72a73598c76189d6dd1b21d8532255d5942  # frozen: 25.9.0
     hooks:
       - id: black
   - repo: https://github.com/pycqa/isort
-    rev: c8ab4a5b21bac924d106e3103dd7c979fdd0f9bc  # frozen: 6.0.1
+    rev: ec0efaee4acfce198521e43caa3029b06cedd64a  # frozen: 6.1.0
     hooks:
       - id: isort
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -50,7 +50,7 @@ repos:
       - id: python-no-eval
       - id: python-no-log-warn
   - repo: https://github.com/ikamensh/flynt
-    rev: b6179c10e744b641f5f180cfc40e95c90a8ad18c  # frozen: 1.0.4
+    rev: 97be693bf18bc2f050667dd282d243e2824b81e2  # frozen: 1.0.6
     hooks:
       - id: flynt
   - repo: https://github.com/asottile/pyupgrade
@@ -72,7 +72,7 @@ repos:
         additional_dependencies:
           - tomli ; python_version < '3.11'
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: c710c9f541ae452547fdce5c360929f007ec4867  # frozen: v4.8.3
+    rev: cc981fcb065527b6de0033b0cbf0432e69781901  # frozen: v4.9.1
     hooks:
       - id: commitizen
   - repo: local
@@ -90,7 +90,7 @@ repos:
         types:
           - python
   - repo: https://github.com/andreoliwa/nitpick
-    rev: '36d4912df1f0bd2ed8cc535b57c5ba3b09ce3d46'  # frozen: v0.35.0
+    rev: '2bdfd4e7aa1fa2eea0d83fd0c0e0ba4fb55ba1e3'  # frozen: v0.36.0
     hooks:
       - id: nitpick
 minimum_pre_commit_version: 2.18.0
