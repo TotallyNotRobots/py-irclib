@@ -43,3 +43,5 @@ jobs:
           base: ${{ github.ref_name }}
           labels: "update"
           reviewers: "linuxdaemon"
+          assignees: "linuxdaemon"
+          sign-commits: true
