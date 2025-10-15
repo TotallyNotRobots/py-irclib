@@ -41,7 +41,7 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/pycqa/isort
-    rev: ec0efaee4acfce198521e43caa3029b06cedd64a  # frozen: 6.1.0
+    rev: 0a09c783808cfe77bb3269250f663ff733d23302  # frozen: 7.0.0
     hooks:
       - id: isort
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -54,7 +54,7 @@ repos:
     hooks:
       - id: flynt
   - repo: https://github.com/asottile/pyupgrade
-    rev: 37bfa06d791fd38fb4e54910b36a2ff57641b074  # frozen: v3.20.0
+    rev: f90119b1b8bd9e46949d9592972b2c4c27d62a97  # frozen: v3.21.0
     hooks:
       - id: pyupgrade
         args:
@@ -90,7 +90,7 @@ repos:
         types:
           - python
   - repo: https://github.com/andreoliwa/nitpick
-    rev: '2bdfd4e7aa1fa2eea0d83fd0c0e0ba4fb55ba1e3'  # frozen: v0.36.0
+    rev: 'a5532d554f2c9035bb05ec14ee1bf31469e0a563'  # frozen: v0.37.0
     hooks:
       - id: nitpick
 minimum_pre_commit_version: 2.18.0
