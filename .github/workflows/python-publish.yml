@@ -3,7 +3,7 @@ name: Build and Publish
 on: [push]
 
 env:
-  HATCH_VERSION: "1.15.0"
+  HATCH_VERSION: "1.15.1"
 
 jobs:
   build:

@@ -13,7 +13,7 @@ concurrency:
 env:
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
-  HATCH_VERSION: "1.15.0"
+  HATCH_VERSION: "1.15.1"
 
 jobs:
   test:
