@@ -1,3 +1,9 @@
+## v0.8.1 (2025-10-25)
+
+### Fix
+
+- **build**: correct publishing to pypi
+
 ## v0.8.0 (2025-10-25)
 
 ### Feat
