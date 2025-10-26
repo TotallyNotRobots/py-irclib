@@ -41,7 +41,7 @@ jobs:
         cache: "pip"
 
     - name: Install Hatch
-      uses: pypa/hatch@a3c83ab3d481fbc2dc91dd0088628817488dd1d5 # install
+      uses: pypa/hatch@9e1fc3472f9f2536e9269cd2009f878e597a6061 # install
       with:
         version: "${{ env.HATCH_VERSION }}"
 
