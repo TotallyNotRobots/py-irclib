@@ -93,6 +93,10 @@ repos:
     rev: 'a1373f03f5a9394c75cc03e5da1b0cb6ff615dbb'  # frozen: v0.38.0
     hooks:
       - id: nitpick
+  - repo: https://github.com/PyCQA/autoflake
+    rev: '0544741e2b4a22b472d9d93e37d4ea9153820bb1'  # frozen: v2.3.1
+    hooks:
+      - id: autoflake
 minimum_pre_commit_version: 2.18.0
 default_install_hook_types:
   - pre-commit
