@@ -47,14 +47,20 @@ dependencies = [
     "mypy==1.18.2",
     "ruamel.yaml==0.18.16",
 ]
-post-install-commands = ["hatch run pre-commit install -f"]
+post-install-commands = ["hatch run pre-commit:install"]
 
 [tool.hatch.envs.default.scripts]
 fix-pre-commit = ["hatch run python3 -m scripts.fix_pre_commit"]
 
+[tool.hatch.envs.pre-commit]
+post-install-commands = []
+[tool.hatch.envs.pre-commit.scripts]
+run = ["pre-commit run {args:--all}"]
+install = ["pre-commit install {args:-f}"]
+
 [tool.hatch.envs.hatch-test]
 default-args = ["tests", "irclib"]
-extra-args = ["-vv"]
+extra-args = ["-vv", "--junitxml=junit.xml"]
 extra-dependencies = [
     "coverage[toml]==7.11.0",
     "pytest==8.4.2",
@@ -71,8 +77,9 @@ python = ["3.14", "3.13", "3.12", "3.11", "3.10"]
 
 [tool.hatch.envs.types]
 extra-dependencies = ["mypy==1.18.2"]
+post-install-commands = []
 [tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:irclib tests}"
+check = "mypy {args:irclib tests}"
 
 [tool.isort]
 profile = "black"

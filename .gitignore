@@ -182,3 +182,4 @@ tags
 .ruff_cache/
 coverage.*
 .coverage.*
+junit.xml

@@ -31,7 +31,10 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Update .pre-commit-config.yaml
-        run: hatch run pre-commit autoupdate --freeze
+        run: hatch run pre-commit:pre-commit autoupdate --freeze
+
+      - name: Run pre-commit
+        run: hatch run pre-commit:run
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
