@@ -25,11 +25,6 @@ jobs:
         with:
           version: "${{ env.HATCH_VERSION }}"
 
-      - name: Set up Git user
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
       - name: Update .pre-commit-config.yaml
         run: hatch run pre-commit:pre-commit autoupdate --freeze
 

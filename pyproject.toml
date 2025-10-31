@@ -66,6 +66,7 @@ extra-dependencies = [
     "pytest==8.4.2",
     "irc-parser-tests==0.0.4",
 ]
+post-install-commands = []
 
 [tool.hatch.envs.hatch-test.scripts]
 run = "pytest{env:HATCH_TEST_ARGS:} {args}"
