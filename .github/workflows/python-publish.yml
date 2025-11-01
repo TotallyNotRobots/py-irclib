@@ -12,6 +12,8 @@ env:
 
 jobs:
   build:
+    permissions:
+      contents: read
     name: Build distribution 📦
     runs-on: ubuntu-latest
     steps:
