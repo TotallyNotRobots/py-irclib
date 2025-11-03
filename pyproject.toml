@@ -9,7 +9,7 @@ description = "A simple library for working with the IRC protocol"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
-authors = [{ name = "linuxdaemon", email = "linuxdaemon.irc@gmail.com" }]
+authors = [{name = "linuxdaemon", email = "linuxdaemon.irc@gmail.com"}]
 keywords = ["irc", "irc-parser"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -54,6 +54,7 @@ fix-pre-commit = ["hatch run python3 -m scripts.fix_pre_commit"]
 
 [tool.hatch.envs.pre-commit]
 post-install-commands = []
+
 [tool.hatch.envs.pre-commit.scripts]
 run = ["pre-commit run {args:--all}"]
 install = ["pre-commit install {args:-f}"]
@@ -73,12 +74,14 @@ run = "pytest{env:HATCH_TEST_ARGS:} {args}"
 run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
 cov-combine = "coverage combine"
 cov-report = ["coverage report --show-missing --skip-covered", "coverage xml"]
+
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.14", "3.13", "3.12", "3.11", "3.10"]
 
 [tool.hatch.envs.types]
 extra-dependencies = ["mypy==1.18.2"]
 post-install-commands = []
+
 [tool.hatch.envs.types.scripts]
 check = "mypy {args:irclib tests}"
 
@@ -134,11 +137,11 @@ select = ["ALL"]
 [tool.ruff.lint.per-file-ignores]
 "tests/*.py" = [
     "PLR2004", # Allow "magic values" in tests -aspen
-    "S101",    # Allow asserts in tests
-    "SIM201",  # We need to test weird comparison operators
-    "SIM202",  # We need to test weird comparison operstors
-    "SIM300",  # We need to test both forward and reverse comparisons
-    "FBT001",  # Boolean parameters are fine for test cases
+    "S101", # Allow asserts in tests
+    "SIM201", # We need to test weird comparison operators
+    "SIM202", # We need to test weird comparison operstors
+    "SIM300", # We need to test both forward and reverse comparisons
+    "FBT001", # Boolean parameters are fine for test cases
 ]
 
 [tool.ruff.lint.pycodestyle]
@@ -184,6 +187,7 @@ enable_error_code = [
     "truthy-bool",
     "truthy-iterable",
     "ignore-without-code",
+    "deprecated",
 ]
 ignore_missing_imports = true
 
@@ -205,15 +209,6 @@ exclude_lines = [
 [tool.coverage.run]
 branch = true
 relative_files = true
-
-[tool.commitizen]
-name = "cz_conventional_commits"
-tag_format = "v$version"
-version_scheme = "semver2"
-version_provider = "scm"
-update_changelog_on_bump = true
-major_version_zero = true
-annotated_tag = true
 
 [tool.nitpick]
 style = ["gh://TotallyNotRobots/nitpick/lib-style-3.10.toml"]
