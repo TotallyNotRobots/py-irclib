@@ -188,8 +188,8 @@ enable_error_code = [
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "--doctest-modules"
+minversion = "8.0"
+addopts = ["--doctest-modules"]
 testpaths = ["irclib", "tests"]
 filterwarnings = ["error"]
 
