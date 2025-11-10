@@ -40,7 +40,7 @@ version-file = "irclib/_version.py"
 
 [tool.hatch.envs.default]
 dependencies = [
-    "coverage[toml]==7.11.1",
+    "coverage[toml]==7.11.2",
     "pytest==8.4.2",
     "irc-parser-tests==0.0.4",
     "pre-commit==4.3.0",
@@ -63,7 +63,7 @@ install = ["pre-commit install {args:-f}"]
 default-args = ["tests", "irclib"]
 extra-args = ["-vv", "--junitxml=junit.xml"]
 extra-dependencies = [
-    "coverage[toml]==7.11.1",
+    "coverage[toml]==7.11.2",
     "pytest==8.4.2",
     "irc-parser-tests==0.0.4",
 ]
