@@ -16,7 +16,7 @@ class FrozenDict(Mapping[str, _V]):
     An immutable mapping of string -> Any type
     """
 
-    __slots__ = ("__hash", "__data")
+    __slots__ = ("__data", "__hash")
 
     def __init__(
         self,

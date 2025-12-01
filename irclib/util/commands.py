@@ -60,7 +60,7 @@ class LookupDict(Mapping[str, Command]):
 
     def __getitem__(self, key: str) -> Command:
         try:
-            return cast(Command, getattr(self, key))
+            return cast("Command", getattr(self, key))
         except AttributeError as e:
             raise KeyError(key) from e
 

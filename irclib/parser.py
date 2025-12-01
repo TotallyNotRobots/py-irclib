@@ -17,11 +17,11 @@ from irclib.errors import ParseError
 __all__ = (
     "Cap",
     "CapList",
-    "MessageTag",
-    "TagList",
-    "Prefix",
-    "ParamList",
     "Message",
+    "MessageTag",
+    "ParamList",
+    "Prefix",
+    "TagList",
 )
 MsgTagList: TypeAlias = Optional["TagList"]
 MsgPrefix: TypeAlias = Optional["Prefix"]
@@ -150,8 +150,7 @@ class CapList(Parseable, list[Cap]):
     @classmethod
     def parse(cls, text: str) -> Self:
         """Parse a list of CAPs from a string."""
-        if text.startswith(":"):
-            text = text[1:]  # Remove leading colon
+        text = text.removeprefix(":")  # Remove leading colon
 
         # We want to strip any leading or trailing whitespace
         # Some networks (ie: freenode) send a trailing space in a CAP ACK
@@ -553,7 +552,7 @@ class ParamList(Parseable, list[str]):
         )
 
         if self.has_trail or needs_trail:
-            return PARAM_SEP.join(self[:-1] + [TRAIL_SENTINEL + self[-1]])
+            return PARAM_SEP.join([*self[:-1], TRAIL_SENTINEL + self[-1]])
 
         return PARAM_SEP.join(self)
 
@@ -565,7 +564,7 @@ def _parse_tags(
         return tags
 
     if isinstance(tags, dict):
-        return TagList.from_dict(cast(dict[str, str], tags))
+        return TagList.from_dict(cast("dict[str, str]", tags))
 
     if isinstance(tags, str):
         return TagList.parse(tags)
@@ -599,7 +598,7 @@ def _parse_params(
 
         return ParamList.from_list(parameters[0])
 
-    return ParamList.from_list(cast(tuple[str, ...], parameters))
+    return ParamList.from_list(cast("tuple[str, ...]", parameters))
 
 
 class Message(Parseable):

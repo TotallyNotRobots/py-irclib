@@ -108,15 +108,15 @@ line-ending = "lf"
 skip-magic-trailing-comma = true
 
 [tool.ruff.lint]
-ignore-init-module-imports = false
 extend-safe-fixes = [
     "EM101",
-    "UP038",
+    "UP",
+    "RUF005",
     "EM102",
     "EM103",
     "FLY002",
-    "TCH001",
-    "TCH002",
+    "TC001",
+    "TC002",
     "TRY400",
     "SIM117",
     "SIM108",
@@ -126,8 +126,7 @@ extend-safe-fixes = [
 ]
 ignore = [
     "TRY003", # TODO(aspen): Switch to custom exceptions
-    "ANN101", # Due to be deprecated in ruff
-    "ANN102", # Due to be deprecated in ruff
+    "PLW1641", # TODO(aspen): Make classes immutable, add __hash__ methods
     "COM812", # Conflicts with formatter
     "ISC001", # Conflicts with formatter
     "EXE002", # pre-commit does it better, works with SMB shares

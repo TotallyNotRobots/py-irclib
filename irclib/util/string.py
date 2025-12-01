@@ -5,7 +5,7 @@ import string
 from collections.abc import Callable
 from typing import Final, Literal, NamedTuple, Protocol, SupportsIndex
 
-__all__ = ("Casemap", "RFC1459", "STRICT_RFC1459", "ASCII", "String")
+__all__ = ("ASCII", "RFC1459", "STRICT_RFC1459", "Casemap", "String")
 
 
 class Casemap(NamedTuple):
