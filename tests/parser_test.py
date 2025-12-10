@@ -987,7 +987,7 @@ def test_msg_join(data: MsgJoinCase) -> None:
     msg = Message(
         atoms.get("tags", None),
         atoms.get("source", None),
-        atoms.get("verb", None),  # type: ignore[arg-type]
+        atoms.get("verb", None),
         atoms.get("params", []),
     )
 
