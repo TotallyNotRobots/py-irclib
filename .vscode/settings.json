@@ -13,5 +13,7 @@
     },
     "python.analysis.diagnosticMode": "workspace",
     "autoDocstringPy.docstringFormat": "google-notypes",
-    "autoDocstringPy.startOnNewLine": true
+    "autoDocstringPy.startOnNewLine": true,
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python-envs.pythonProjects": []
 }
