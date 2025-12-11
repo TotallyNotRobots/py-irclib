@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2017-present linuxdaemon <linuxdaemon.irc@gmail.com>
+#
+# SPDX-License-Identifier: MIT
+
 """IRC parser and utility library."""
 
 from irclib._version import (
