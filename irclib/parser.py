@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2017-present linuxdaemon <linuxdaemon.irc@gmail.com>
+#
+# SPDX-License-Identifier: MIT
+
 """Simple IRC line parser.
 
 Backported from async-irc (https://github.com/snoonetIRC/async-irc.git)
