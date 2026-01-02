@@ -45,7 +45,7 @@ dependencies = [
     "irc-parser-tests==0.0.4",
     "pre-commit==4.5.1",
     "mypy==1.19.1",
-    "ruamel.yaml==0.18.17",
+    "ruamel.yaml==0.19.1",
 ]
 post-install-commands = ["hatch run pre-commit:install"]
 
