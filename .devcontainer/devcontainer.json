@@ -8,8 +8,7 @@
     "features": {
         "ghcr.io/devcontainers-extra/features/zsh-plugins": {
             "omzPlugins": "https://github.com/zsh-users/zsh-autosuggestions"
-        },
-        "ghcr.io/devcontainers/features/docker-in-docker": {}
+        }
     },
 
     // Features to add to the dev container. More info: https://containers.dev/features.
