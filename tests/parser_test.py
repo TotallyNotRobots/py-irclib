@@ -941,6 +941,31 @@ def test_trail() -> None:
 def test_comparisons(parse_type: type[Parseable], text: str) -> None:
     """Test comparing parsed objects to strings."""
     assert text == parse_type.parse(text)  # type: ignore[comparison-overlap]
+
+
+@pytest.mark.parametrize(
+    ("parse_type", "text"),
+    [
+        (MessageTag, "hi"),
+        (MessageTag, "hello=world"),
+        (MessageTag, "he\\:llo=\\swor\\r\\\\ld"),
+        (TagList, "hi"),
+        (TagList, "hello; there"),
+        (TagList, "hello; there;"),
+        (TagList, "hello=world; there"),
+        (Prefix, "nick"),
+        (Prefix, "nick!user"),
+        (Prefix, "nick@host"),
+        (Prefix, "nick!user@host"),
+        (ParamList, "test test"),
+        (ParamList, "test :test"),
+        (ParamList, "test :test test"),
+        (Message, "COMMAND"),
+        (Message, "command"),
+    ],
+)
+def test_comparisons_negative(parse_type: type[Parseable], text: str) -> None:
+    """Test comparing parsed objects to strings."""
     assert not text != parse_type.parse(text)  # type: ignore[comparison-overlap]
 
 
