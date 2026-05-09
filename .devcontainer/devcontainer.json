@@ -5,10 +5,14 @@
     // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
     "dockerFile": "./Dockerfile",
     "context": "..",
+    "mounts": [
+        "source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,consistency=cached"
+    ],
     "features": {
         "ghcr.io/devcontainers-extra/features/zsh-plugins": {
             "omzPlugins": "https://github.com/zsh-users/zsh-autosuggestions"
-        }
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {}
     },
 
     // Features to add to the dev container. More info: https://containers.dev/features.
@@ -41,7 +45,6 @@
                 "sunipkm.autodocstringpy"
             ],
             "settings": {
-                "python.defaultInterpreterPath": "~/.virtualenvs/py-irclib/bin/python",
                 "python.testing.pytestArgs": ["--no-cov"],
                 "terminal.integrated.profiles.linux": {
                     "zsh": {
