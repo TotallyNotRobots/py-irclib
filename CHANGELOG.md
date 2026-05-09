@@ -1,3 +1,10 @@
+## v0.8.2 (2026-05-09)
+
+### Fix
+
+- correct release environment in devcontainer
+- **devcontainer**: remove unused DinD feature
+
 ## v0.8.1 (2025-10-25)
 
 ### Fix
