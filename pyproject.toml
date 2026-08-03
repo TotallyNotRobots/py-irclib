@@ -43,7 +43,7 @@ dependencies = [
     "coverage[toml]==7.14.3",
     "pytest==9.0.3",
     "irc-parser-tests==0.0.4",
-    "pre-commit==4.6.0",
+    "pre-commit==4.6.1",
     "mypy==2.1.0",
     "ruamel.yaml==0.19.1",
 ]
