@@ -21,7 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
-dependencies = ["attrs>=20.3.0", "typing_extensions"]
+dependencies = ["attrs>=20.3.0", "typing_extensions>=4.5.0"]
 
 [project.urls]
 Homepage = "https://github.com/TotallyNotRobots/py-irclib"
@@ -44,7 +44,7 @@ dependencies = [
     "pytest==9.1.1",
     "irc-parser-tests==0.0.4",
     "pre-commit==4.7.0",
-    "mypy==2.3.1",
+    "basedpyright==1.40.2",
     "ruamel.yaml==0.19.1",
 ]
 post-install-commands = ["hatch run pre-commit:install"]
@@ -54,10 +54,12 @@ fix-pre-commit = ["hatch run python3 -m scripts.fix_pre_commit"]
 
 [tool.hatch.envs.pre-commit]
 post-install-commands = []
+extra-dependencies = ["pre-commit==4.7.0"]
 
 [tool.hatch.envs.pre-commit.scripts]
 run = ["pre-commit run {args:--all}"]
 install = ["pre-commit install {args:-f}"]
+update = ["pre-commit autoupdate --freeze"]
 
 [tool.hatch.envs.hatch-test]
 default-args = ["tests", "irclib"]
@@ -79,24 +81,11 @@ cov-report = ["coverage report --show-missing --skip-covered", "coverage xml"]
 python = ["3.14", "3.13", "3.12", "3.11", "3.10"]
 
 [tool.hatch.envs.types]
-extra-dependencies = ["mypy==2.3.1"]
+extra-dependencies = ["basedpyright==1.40.2"]
 post-install-commands = []
 
 [tool.hatch.envs.types.scripts]
-check = "mypy {args:irclib tests}"
-
-[tool.isort]
-profile = "black"
-line_length = 80
-include_trailing_comma = true
-use_parentheses = true
-known_first_party = ["irclib"]
-float_to_top = true
-
-[tool.black]
-line-length = 80
-target-version = ["py310"]
-include = '\.pyi?$'
+check = "basedpyright {args:irclib tests}"
 
 [tool.ruff]
 line-length = 80
@@ -124,13 +113,7 @@ extend-safe-fixes = [
     "D415",
     "D200",
 ]
-ignore = [
-    "TRY003", # TODO(aspen): Switch to custom exceptions
-    "PLW1641", # TODO(aspen): Make classes immutable, add __hash__ methods
-    "COM812", # Conflicts with formatter
-    "ISC001", # Conflicts with formatter
-    "EXE002", # pre-commit does it better, works with SMB shares
-]
+ignore = ["TRY003", "PLW1641", "COM812", "ISC001", "EXE002", "CPY001"]
 select = ["ALL"]
 
 [tool.ruff.lint.per-file-ignores]
@@ -158,40 +141,8 @@ transform-joins = true
 transform-concats = true
 line-length = 120
 
-[tool.mypy]
-namespace_packages = true
-python_version = "3.10"
-warn_unused_configs = true
-strict = true
-strict_bytes = false
-strict_optional = true
-check_untyped_defs = true
-show_error_codes = true
-warn_unused_ignores = true
-no_implicit_reexport = true
-warn_redundant_casts = true
-strict_equality = true
-disallow_any_generics = true
-disallow_untyped_calls = true
-disallow_untyped_defs = true
-disallow_untyped_decorators = true
-extra_checks = true
-warn_unreachable = true
-warn_return_any = true
-warn_no_return = true
-enable_error_code = [
-    "redundant-self",
-    "redundant-expr",
-    "possibly-undefined",
-    "truthy-bool",
-    "truthy-iterable",
-    "ignore-without-code",
-    "deprecated",
-]
-ignore_missing_imports = true
-
-[tool.pytest.ini_options]
-minversion = "8.0"
+[tool.pytest]
+minversion = "9.0"
 addopts = ["--doctest-modules"]
 testpaths = ["irclib", "tests"]
 filterwarnings = ["error"]
@@ -210,7 +161,10 @@ branch = true
 relative_files = true
 
 [tool.nitpick]
-style = ["gh://TotallyNotRobots/nitpick/lib-style-3.10.toml"]
+style = [
+    "gh://TotallyNotRobots/nitpick/lib-style-3.10.toml",
+    "gh://TotallyNotRobots/nitpick/styles/hatch/common.toml",
+]
 
 [tool.check-spdx-header]
 headers = ["2017-present linuxdaemon <linuxdaemon.irc@gmail.com>"]
@@ -218,3 +172,10 @@ headers = ["2017-present linuxdaemon <linuxdaemon.irc@gmail.com>"]
 [tool.autoflake]
 remove-all-unused-imports = true
 in-place = true
+
+[tool.basedpyright]
+analyzeUnannotatedFunctions = true
+reportUnusedCallResult = "none"
+reportImplicitStringConcatenation = "none"
+reportImportCycles = "none"
+pythonVersion = "3.10"

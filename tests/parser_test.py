@@ -4,7 +4,7 @@
 
 """Test IRC parser."""
 
-import datetime
+import datetime as dt
 from typing import TypedDict
 
 import parser_tests.data
@@ -816,7 +816,7 @@ class TestMessage:
         [
             (
                 "@time=2025-09-01T00:11:22.123Z FOO #bar :baz blah",
-                datetime.datetime(
+                dt.datetime(
                     year=2025,
                     month=9,
                     day=1,
@@ -824,12 +824,12 @@ class TestMessage:
                     minute=11,
                     second=22,
                     microsecond=123000,
-                    tzinfo=datetime.timezone.utc,
+                    tzinfo=dt.timezone.utc,
                 ),
             ),
             (
                 "FOO #bar :baz blah",
-                datetime.datetime(
+                dt.datetime(
                     year=2006,
                     month=1,
                     day=2,
@@ -837,16 +837,14 @@ class TestMessage:
                     minute=4,
                     second=5,
                     microsecond=123456,
-                    tzinfo=datetime.timezone(datetime.timedelta(hours=-7)),
+                    tzinfo=dt.timezone(dt.timedelta(hours=-7)),
                 ),
             ),
         ],
     )
-    def test_parse_server_time(
-        self, msg: str, expected: datetime.datetime
-    ) -> None:
+    def test_parse_server_time(self, msg: str, expected: dt.datetime) -> None:
         """Test server time parsing."""
-        default_time = datetime.datetime(
+        default_time = dt.datetime(
             year=2006,
             month=1,
             day=2,
@@ -854,7 +852,7 @@ class TestMessage:
             minute=4,
             second=5,
             microsecond=123456,
-            tzinfo=datetime.timezone(datetime.timedelta(hours=-7)),
+            tzinfo=dt.timezone(dt.timedelta(hours=-7)),
         )
 
         assert Message.parse(msg, time=default_time).time == expected
@@ -888,7 +886,7 @@ class TestMessage:
                 None,
                 None,
                 "cmd",
-                time=datetime.datetime(year=1, month=1, day=1),  # noqa: DTZ001
+                time=dt.datetime(year=1, month=1, day=1),  # noqa: DTZ001
             )
 
     @pytest.mark.parametrize(

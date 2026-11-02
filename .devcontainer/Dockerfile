@@ -5,8 +5,14 @@ RUN \
     && pipx uninstall pylint \
     && pipx uninstall pytest \
     && pipx uninstall flake8 \
-    && pipx uninstall black \
-    && pipx install commitizen \
+    && pipx uninstall black
+
+RUN pipx install commitizen \
     && pipx install hatch
 
-ENV SHELL /bin/bash
+RUN umask 0002 \
+    && mkdir -p ${PIPX_BIN_DIR} \
+    && chown -R "vscode:pipx" ${PIPX_HOME} \
+    && chmod -R g+r+w "${PIPX_HOME}"
+
+ENV SHELL=/bin/bash

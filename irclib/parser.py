@@ -7,11 +7,12 @@
 Backported from async-irc (https://github.com/snoonetIRC/async-irc.git)
 """
 
-import datetime
+import datetime as dt
 import re
 import warnings
 from abc import ABCMeta, abstractmethod
 from collections.abc import Iterable, Iterator, Sequence
+from datetime import datetime
 from typing import Final, Literal, Optional, TypeAlias, cast
 
 from typing_extensions import Self
@@ -62,13 +63,11 @@ TAG_VALUE_UNESCAPES: Final = {
 }
 
 
-def parse_server_time(
-    value: str | None, default: datetime.datetime
-) -> datetime.datetime:
+def parse_server_time(value: str | None, default: dt.datetime) -> dt.datetime:
     if value:
-        return datetime.datetime.strptime(
-            value, "%Y-%m-%dT%H:%M:%S.%fZ"
-        ).replace(tzinfo=datetime.timezone.utc)
+        return dt.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
+            tzinfo=dt.timezone.utc
+        )
 
     return default
 
@@ -562,7 +561,7 @@ class ParamList(Parseable, list[str]):
 
 
 def _parse_tags(
-    tags: TagList | dict[str, str] | str | None | list[str],
+    tags: TagList | dict[str, str] | str | list[str] | None,
 ) -> MsgTagList:
     if isinstance(tags, TagList):
         return tags
@@ -579,7 +578,7 @@ def _parse_tags(
     return TagList(MessageTag.parse(str(tag)) for tag in tags)
 
 
-def _parse_prefix(prefix: Prefix | str | None | Iterable[str]) -> MsgPrefix:
+def _parse_prefix(prefix: Prefix | str | Iterable[str] | None) -> MsgPrefix:
     if isinstance(prefix, Prefix):
         return prefix
 
@@ -610,30 +609,30 @@ class Message(Parseable):
 
     def __init__(
         self,
-        tags: TagList | dict[str, str] | str | None | list[str],
-        prefix: str | Prefix | None | Iterable[str],
+        tags: TagList | dict[str, str] | str | list[str] | None,
+        prefix: str | Prefix | Iterable[str] | None,
         command: str,
         *parameters: str | list[str] | ParamList,
-        time: datetime.datetime | None = None,
+        time: dt.datetime | None = None,
     ) -> None:
         """Construct message object."""
-        self._tags = _parse_tags(tags)
-        self._prefix = _parse_prefix(prefix)
-        self._command = command
-        self._parameters = _parse_params(parameters)
+        self._tags: MsgTagList = _parse_tags(tags)
+        self._prefix: MsgPrefix = _parse_prefix(prefix)
+        self._command: str = command
+        self._parameters: ParamList = _parse_params(parameters)
 
         if time is None:
-            time = datetime.datetime.now(datetime.timezone.utc)
+            time = dt.datetime.now(dt.timezone.utc)
 
         if time.tzinfo is None:
-            time = time.replace(tzinfo=datetime.timezone.utc)
+            time = time.replace(tzinfo=dt.timezone.utc)
             warnings.warn(
                 "Timezone-naive datetime is deprecated for 'time'.",
                 DeprecationWarning,
                 stacklevel=2,
             )
 
-        self._time = time
+        self._time: datetime = time
 
     def has_tag(self, name: str) -> bool:
         """Return whether this message has a particular message tag."""
@@ -650,7 +649,7 @@ class Message(Parseable):
         return None
 
     @property
-    def time(self) -> datetime.datetime:
+    def time(self) -> dt.datetime:
         """Time the message was sent/received.
 
         Uses server-time tag if available.
@@ -693,7 +692,7 @@ class Message(Parseable):
 
     @classmethod
     def parse(
-        cls, text: str | bytes, *, time: datetime.datetime | None = None
+        cls, text: str | bytes, *, time: dt.datetime | None = None
     ) -> Self:
         """Parse an IRC message in to objects."""
         if isinstance(text, memoryview):
