@@ -45,7 +45,7 @@ jobs:
     - name: Install Hatch
       uses: pypa/hatch@f647ed70d49adb885f53a27d1c7f5bdaeacf2c60 # install
       with:
-        version: "${{ env.HATCH_VERSION }}"
+        version: "1.18.1"
 
     - name: Run type check
       run: hatch run types:check

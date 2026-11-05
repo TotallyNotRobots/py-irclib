@@ -5,9 +5,6 @@ on:
     - cron: '0 3 * * 1' # Every Monday at 03:00 UTC
   workflow_dispatch:
 
-env:
-  HATCH_VERSION: "1.18.1"
-
 jobs:
   update-pre-commit-config:
     permissions:
@@ -26,10 +23,10 @@ jobs:
       - name: Install Hatch
         uses: pypa/hatch@f647ed70d49adb885f53a27d1c7f5bdaeacf2c60 # install
         with:
-          version: "${{ env.HATCH_VERSION }}"
+          version: "1.18.1"
 
       - name: Update .pre-commit-config.yaml
-        run: hatch run pre-commit:pre-commit autoupdate --freeze
+        run: hatch run pre-commit:update
 
       - name: Run pre-commit
         run: hatch run pre-commit:run
