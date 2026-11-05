@@ -13,9 +13,7 @@ import warnings
 from abc import ABCMeta, abstractmethod
 from collections.abc import Iterable, Iterator, Sequence
 from datetime import datetime
-from typing import Final, Literal, Optional, TypeAlias, cast
-
-from typing_extensions import Self
+from typing import Final, Literal, Optional, Self, TypeAlias, cast
 
 from irclib.errors import ParseError
 
@@ -66,7 +64,7 @@ TAG_VALUE_UNESCAPES: Final = {
 def parse_server_time(value: str | None, default: dt.datetime) -> dt.datetime:
     if value:
         return dt.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
-            tzinfo=dt.timezone.utc
+            tzinfo=dt.UTC
         )
 
     return default
@@ -622,10 +620,10 @@ class Message(Parseable):
         self._parameters: ParamList = _parse_params(parameters)
 
         if time is None:
-            time = dt.datetime.now(dt.timezone.utc)
+            time = dt.datetime.now(dt.UTC)
 
         if time.tzinfo is None:
-            time = time.replace(tzinfo=dt.timezone.utc)
+            time = time.replace(tzinfo=dt.UTC)
             warnings.warn(
                 "Timezone-naive datetime is deprecated for 'time'.",
                 DeprecationWarning,

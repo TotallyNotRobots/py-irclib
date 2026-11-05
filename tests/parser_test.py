@@ -824,7 +824,7 @@ class TestMessage:
                     minute=11,
                     second=22,
                     microsecond=123000,
-                    tzinfo=dt.timezone.utc,
+                    tzinfo=dt.UTC,
                 ),
             ),
             (
