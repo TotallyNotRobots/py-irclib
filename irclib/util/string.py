@@ -9,6 +9,8 @@ import string
 from collections.abc import Callable
 from typing import Final, Literal, NamedTuple, Protocol, SupportsIndex
 
+from typing_extensions import Self
+
 __all__ = ("ASCII", "RFC1459", "STRICT_RFC1459", "Casemap", "String")
 
 
@@ -55,9 +57,7 @@ class String(str):
 
     _casemap: Casemap
 
-    def __new__(
-        cls, value: str = "", casemap: Casemap | None = None
-    ) -> "String":
+    def __new__(cls, value: str = "", casemap: Casemap | None = None) -> Self:
         """Construct new String and set casemap."""
         o = str.__new__(cls, value)
         o._casemap = casemap or ASCII  # noqa: SLF001
