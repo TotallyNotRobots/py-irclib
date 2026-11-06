@@ -5,9 +5,7 @@
 """Frozen Dict."""
 
 from collections.abc import Iterable, Iterator, Mapping
-from typing import TypeVar
-
-from typing_extensions import Self
+from typing import Self, TypeVar
 
 __all__ = ("FrozenDict",)
 

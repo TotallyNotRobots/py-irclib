@@ -7,9 +7,7 @@
 import operator
 import string
 from collections.abc import Callable
-from typing import Final, Literal, NamedTuple, Protocol, SupportsIndex
-
-from typing_extensions import Self
+from typing import Final, Literal, NamedTuple, Protocol, Self, SupportsIndex
 
 __all__ = ("ASCII", "RFC1459", "STRICT_RFC1459", "Casemap", "String")
 

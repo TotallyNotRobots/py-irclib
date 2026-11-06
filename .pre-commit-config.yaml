@@ -50,7 +50,7 @@ repos:
     hooks:
       - id: pyupgrade
         args:
-          - --py310-plus
+          - --py311-plus
   - repo: https://github.com/MarcoGorelli/auto-walrus
     rev: 1743edbed52f3d61886b59d98a27164a8af29c0d  # frozen: 0.4.1
     hooks:
